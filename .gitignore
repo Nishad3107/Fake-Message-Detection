@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+node_modules/
+dist/
+.env
+backend/models/*.joblib
+backend/models/metrics.json
+backend/data/history.db
+*.tsbuildinfo
