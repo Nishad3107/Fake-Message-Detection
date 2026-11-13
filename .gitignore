@@ -9,4 +9,8 @@ dist/
 backend/models/*.joblib
 backend/models/metrics.json
 backend/data/history.db
+backend/data/raw/pheme/*
+!backend/data/raw/pheme/.gitkeep
+backend/data/processed/*.csv
+backend/data/reports/*.json
 *.tsbuildinfo

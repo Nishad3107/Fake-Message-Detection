@@ -68,7 +68,22 @@ The sample CSV at `backend/data/sample_dataset.csv` requires `text` and `label` 
 make train
 ```
 
-The script cleans text, splits it with a fixed random seed, fits TF-IDF and Logistic Regression with class balancing, reports accuracy/precision/recall/F1 plus a confusion matrix, and saves `classifier.joblib`, `vectorizer.joblib`, and `metrics.json` in `backend/models/`. Place a real labeled dataset in `backend/data/` and run `make train`; do not treat the included sample metrics as real-world performance.
+The script cleans text, performs a fixed-seed 70/30 stratified holdout, fits TF-IDF and Logistic Regression with class balancing, reports accuracy/precision/recall/F1 plus a confusion matrix and sample counts, and saves `classifier.joblib`, `vectorizer.joblib`, and `metrics.json` in `backend/models/`. Place a real labeled dataset in `backend/data/` and run `make train`; do not treat the included sample metrics as real-world performance.
+
+## Academic dataset status
+
+The current `backend/data/sample_dataset.csv` is a 20-row synthetic development dataset only. It must not be used for final academic evaluation.
+
+The preferred real-data direction is the PHEME Rumour Detection and Veracity Classification dataset. Its official record is <https://figshare.com/articles/dataset/PHEME_dataset_for_Rumour_Detection_and_Veracity_Classification/6392078>. The current environment can reach the record page, but the official archive download returned HTTP 403, so no PHEME data has been added automatically. Do not substitute LIAR or another dataset without documenting that decision.
+
+After manually downloading and extracting PHEME, place the untouched event tree under `backend/data/raw/pheme/`, then run:
+
+```bash
+make prepare-dataset
+cat backend/data/reports/pheme_quality.json
+```
+
+The preparation script creates `backend/data/processed/pheme_veracity.csv` with `text`, `label`, `source_event`, and `source_tweet_id` columns, and writes a quality report. It preserves the raw files, skips non-rumor branches for the preferred `true`/`false`/`unverified` veracity task, and does not train a model. See `docs/dataset-card.md` for the license, label policy, expected raw tree, bias risks, and split recommendation.
 
 ## Persistence
 
@@ -83,6 +98,16 @@ make lint       # Ruff
 make docker-up
 make docker-down
 ```
+
+Frontend checks:
+
+```bash
+cd frontend
+npm test
+npm run build
+```
+
+The frontend test suite covers the application shell and CTA rendering. The backend suite covers validation, model availability, preprocessing, predictions, endpoints, and SQLite history.
 
 The frontend sends requests to `VITE_API_URL` when provided, otherwise it uses `http://localhost:8000`.
 
