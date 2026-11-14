@@ -85,6 +85,10 @@ cat backend/data/reports/pheme_quality.json
 
 The preparation script creates `backend/data/processed/pheme_veracity.csv` with `text`, `label`, `source_event`, and `source_tweet_id` columns, and writes a quality report. It preserves the raw files, skips non-rumor branches for the preferred `true`/`false`/`unverified` veracity task, and does not train a model. See `docs/dataset-card.md` for the license, label policy, expected raw tree, bias risks, and split recommendation.
 
+## Exploratory data analysis
+
+Run `make analyze-dataset` to analyze prepared PHEME data when `backend/data/processed/pheme_veracity.csv` exists. If PHEME is unavailable, the command uses only `backend/data/sample_dataset.csv` and labels every output as synthetic development data; the datasets are never combined. The machine-readable report is written to `backend/data/reports/eda_report.json` and charts are written to `backend/data/reports/eda/`. See `docs/exploratory-data-analysis.md` for interpretation and leakage risks. This workflow does not train a model.
+
 ## Persistence
 
 SQLite history is stored at `backend/data/history.db` for local runs. Docker stores it in the `history-data` named volume. The database layer is isolated in `backend/app/db/database.py`, so a PostgreSQL repository can be introduced later without changing the API contract.

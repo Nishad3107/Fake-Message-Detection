@@ -1,4 +1,4 @@
-.PHONY: install backend frontend test train prepare-dataset format lint docker-up docker-down
+.PHONY: install backend frontend test train prepare-dataset analyze-dataset format lint docker-up docker-down
 
 PYTHON := $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 
@@ -16,6 +16,8 @@ train:
 	PYTHONPATH=backend $(PYTHON) -m app.ml.train --dataset backend/data/sample_dataset.csv --model-dir backend/models
 prepare-dataset:
 	PYTHONPATH=backend $(PYTHON) -m app.ml.prepare_dataset --raw-dir backend/data/raw/pheme --output backend/data/processed/pheme_veracity.csv --report backend/data/reports/pheme_quality.json
+analyze-dataset:
+	PYTHONPATH=backend $(PYTHON) -m app.ml.analyze_dataset
 format:
 	$(PYTHON) -m black backend/app backend/tests
 lint:

@@ -13,4 +13,5 @@ backend/data/raw/pheme/*
 !backend/data/raw/pheme/.gitkeep
 backend/data/processed/*.csv
 backend/data/reports/*.json
+backend/data/reports/eda/
 *.tsbuildinfo
