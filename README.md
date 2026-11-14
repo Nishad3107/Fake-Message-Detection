@@ -91,6 +91,10 @@ The preparation script creates `backend/data/processed/pheme_veracity.csv` with 
 
 Run `make create-splits` after preparation. The deterministic script selects five training events, two validation events, and two test events while requiring all three labels in each subset. It keeps events and threads disjoint, writes `backend/data/reports/grouping_report.json`, and writes the ignored manifest to `backend/data/splits/pheme_split_manifest.json`. It does not train a model. See `docs/data-splitting-strategy.md` for the exact allocation and limitations.
 
+## NLP preprocessing
+
+Run `make prepare-splits` after creating the event-level split. The stateless pipeline preserves `text_original`, creates deterministic `text_clean`, and writes separate `train.csv`, `validation.csv`, and `test.csv` files under `backend/data/processed/splits/`. It preserves labels, events, threads, and source tweet IDs, and writes `backend/data/reports/preprocessing_report.json`. It does not fit a vectorizer or train a model. See `docs/text-preprocessing.md` for the transformation choices and leakage controls.
+
 ## Exploratory data analysis
 
 Run `make analyze-dataset` to analyze prepared PHEME data when `backend/data/processed/pheme_veracity.csv` exists. If PHEME is unavailable, the command uses only `backend/data/sample_dataset.csv` and labels every output as synthetic development data; the datasets are never combined. The machine-readable report is written to `backend/data/reports/eda_report.json` and charts are written to `backend/data/reports/eda/`. See `docs/exploratory-data-analysis.md` for interpretation and leakage risks. This workflow does not train a model.

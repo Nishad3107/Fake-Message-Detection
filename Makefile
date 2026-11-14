@@ -1,4 +1,4 @@
-.PHONY: install backend frontend test train validate-pheme prepare-dataset analyze-dataset create-splits format lint docker-up docker-down
+.PHONY: install backend frontend test train validate-pheme prepare-dataset analyze-dataset create-splits prepare-splits format lint docker-up docker-down
 
 PYTHON := $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 
@@ -22,6 +22,8 @@ analyze-dataset:
 	PYTHONPATH=backend $(PYTHON) -m app.ml.analyze_dataset
 create-splits:
 	PYTHONPATH=backend $(PYTHON) -m app.ml.create_splits
+prepare-splits:
+	PYTHONPATH=backend $(PYTHON) -m app.ml.prepare_splits
 format:
 	$(PYTHON) -m black backend/app backend/tests
 lint:
