@@ -82,9 +82,14 @@ The raw event tree is under `backend/data/raw/pheme/`. Validate, prepare, and an
 make validate-pheme
 make prepare-dataset
 make analyze-dataset
+make create-splits
 ```
 
 The preparation script creates `backend/data/processed/pheme_veracity.csv` with `text`, `label`, `event`, `thread_id`, and `source_tweet_id` columns. It preserves the raw files, excludes non-rumor branches from the veracity task, and does not train a model. See `docs/dataset-card.md` and `docs/exploratory-data-analysis.md` for the actual counts, label policy, bias risks, and split recommendation.
+
+## Leakage-safe data splitting
+
+Run `make create-splits` after preparation. The deterministic script selects five training events, two validation events, and two test events while requiring all three labels in each subset. It keeps events and threads disjoint, writes `backend/data/reports/grouping_report.json`, and writes the ignored manifest to `backend/data/splits/pheme_split_manifest.json`. It does not train a model. See `docs/data-splitting-strategy.md` for the exact allocation and limitations.
 
 ## Exploratory data analysis
 

@@ -14,4 +14,5 @@ backend/data/raw/pheme/*
 backend/data/processed/*.csv
 backend/data/reports/*.json
 backend/data/reports/eda/
+backend/data/splits/*.json
 *.tsbuildinfo
