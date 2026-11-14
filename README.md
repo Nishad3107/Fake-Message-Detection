@@ -91,6 +91,10 @@ The preparation script creates `backend/data/processed/pheme_veracity.csv` with 
 
 Run `make train-baselines` after `make prepare-splits`. The experiment fits one TF-IDF vectorizer on training text only, compares a majority baseline, Multinomial Naive Bayes, class-balanced Logistic Regression, and LinearSVC on validation data, and keeps the test split unevaluated for model selection. Results are written to `backend/data/reports/model_comparison/`; model artifacts and the vectorizer are written to the ignored `backend/models/baselines/` directory. See `docs/baseline-model-comparison.md` for the configuration, validation results, and confidence semantics.
 
+## Leakage-safe hyperparameter tuning
+
+Run `make tune-models` after the baseline experiment. Tuning uses only the training split with event-grouped `StratifiedGroupKFold`; each fold fits its own TF-IDF vectorizer. The selected candidates are then evaluated on validation only. The final test split is not loaded or scored. Reports are written to `backend/data/reports/model_comparison/` and selected artifacts to the ignored `backend/models/tuned/` directory. See `docs/hyperparameter-tuning.md` for the search space, results, and limitations.
+
 ## Leakage-safe data splitting
 
 Run `make create-splits` after preparation. The deterministic script selects five training events, two validation events, and two test events while requiring all three labels in each subset. It keeps events and threads disjoint, writes `backend/data/reports/grouping_report.json`, and writes the ignored manifest to `backend/data/splits/pheme_split_manifest.json`. It does not train a model. See `docs/data-splitting-strategy.md` for the exact allocation and limitations.

@@ -18,4 +18,5 @@ backend/data/splits/*.json
 backend/data/processed/splits/*.csv
 backend/data/reports/model_comparison/
 backend/models/baselines/
+backend/models/tuned/
 *.tsbuildinfo
