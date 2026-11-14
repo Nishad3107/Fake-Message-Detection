@@ -20,4 +20,5 @@ backend/data/reports/model_comparison/
 backend/models/baselines/
 backend/models/tuned/
 backend/models/final/
+backend/data/reports/model_comparison/error_analysis/
 *.tsbuildinfo

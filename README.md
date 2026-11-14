@@ -99,6 +99,10 @@ Run `make tune-models` after the baseline experiment. Tuning uses only the train
 
 Run `make evaluate-final` only after the candidate configuration is frozen. The command fits the tuned Multinomial Naive Bayes pipeline on train plus validation, evaluates the unseen test events once, and writes final metrics, predictions, confusion matrices, event-wise results, and calibration diagnostics under `backend/data/reports/model_comparison/`. It does not retune or use test results for model selection. See `docs/final-model-evaluation.md`.
 
+## Error analysis and explainability
+
+Run `make analyze-errors` after `make evaluate-final`. This reads the frozen final artifact and saved test predictions without retraining or changing the model. It validates prediction alignment, analyzes confusion pairs and held-out events, groups confidence bands, extracts statistical Naive Bayes feature associations, and writes JSON reports plus charts under `backend/data/reports/model_comparison/error_analysis/`. These associations are language-pattern correlations, not evidence that a claim is true or false. See `docs/error-analysis-and-explainability.md`.
+
 ## Leakage-safe data splitting
 
 Run `make create-splits` after preparation. The deterministic script selects five training events, two validation events, and two test events while requiring all three labels in each subset. It keeps events and threads disjoint, writes `backend/data/reports/grouping_report.json`, and writes the ignored manifest to `backend/data/splits/pheme_split_manifest.json`. It does not train a model. See `docs/data-splitting-strategy.md` for the exact allocation and limitations.
