@@ -129,6 +129,22 @@ make docker-up
 make docker-down
 ```
 
+The backend uses the frozen PHEME artifact in `backend/models/final/` when it
+is available. Start it locally with `make backend`, then verify integration:
+
+```bash
+curl http://localhost:8000/health
+curl http://localhost:8000/api/v1/model-info
+curl -X POST http://localhost:8000/api/v1/predict \
+  -H 'Content-Type: application/json' \
+  -d '{"text":"A public report describes the latest event and evidence."}'
+```
+
+If the generated artifact is absent, the API remains available for health and
+documentation endpoints but prediction returns HTTP 503. Recreate it with the
+reproducible workflow documented in `docs/backend-model-integration.md`; the
+API never trains a replacement model automatically.
+
 Frontend checks:
 
 ```bash

@@ -53,7 +53,8 @@ def clean_text(text: str) -> str:
     """Normalize text while retaining words that are useful to the baseline model."""
     normalized = text.lower()
     normalized = re.sub(r"https?://\S+|www\.\S+", " ", normalized)
-    normalized = re.sub(r"[^a-z0-9\s]", " ", normalized)
+    normalized = re.sub(r"#([a-z0-9_]+)", r" hashtag_\1 ", normalized)
+    normalized = re.sub(r"[^a-z0-9_\s]", " ", normalized)
     return re.sub(r"\s+", " ", normalized).strip()
 
 

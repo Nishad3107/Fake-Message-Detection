@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException, Query, Request
 
 from app.core.config import get_settings
 from app.db.database import history_summary, list_analyses, save_analysis
+from app.ml.model_service import FrozenModelService
 from app.models.schemas import (
     BatchPredictionRequest,
     BatchPredictionResponse,
@@ -13,7 +14,6 @@ from app.models.schemas import (
     PredictionRequest,
     PredictionResponse,
 )
-from app.services.prediction_service import PredictionService
 
 router = APIRouter()
 
@@ -29,7 +29,7 @@ def predict(payload: PredictionRequest, request: Request) -> PredictionResponse:
     try:
         result = save_analysis(get_settings(), service.predict(payload.text))
         return PredictionResponse(**result)
-    except RuntimeError as exc:
+    except (RuntimeError, ValueError) as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
 
@@ -39,7 +39,11 @@ def predict_batch(
 ) -> BatchPredictionResponse:
     service = getattr(request.app.state, "prediction_service", None)
     if service is None or not service.is_ready:
-        raise HTTPException(status_code=503, detail="Prediction model is unavailable")
+        raise HTTPException(
+            status_code=503,
+            detail=getattr(service, "model_error", None)
+            or "Prediction model is unavailable",
+        )
     try:
         results = [
             save_analysis(get_settings(), service.predict(item.text))
@@ -48,22 +52,23 @@ def predict_batch(
         return BatchPredictionResponse(
             results=[PredictionResponse(**item) for item in results]
         )
-    except RuntimeError as exc:
+    except (RuntimeError, ValueError) as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
 
 @router.get("/model-info", response_model=ModelInfoResponse)
 def model_info(request: Request) -> ModelInfoResponse:
     service = getattr(request.app.state, "prediction_service", None)
-    settings = get_settings()
-    return ModelInfoResponse(
-        name=PredictionService.model_name,
-        version=PredictionService.model_version,
-        algorithm="TF-IDF word n-grams + Logistic Regression",
-        dataset=str(settings.dataset_path.name),
-        metrics=service.metrics() if service else {},
-        ready=bool(service and service.is_ready),
-    )
+    if service is None:
+        return ModelInfoResponse(
+            name=FrozenModelService.model_name,
+            version="unavailable",
+            algorithm="TF-IDF word n-grams + Multinomial Naive Bayes",
+            dataset="PHEME",
+            metrics={},
+            ready=False,
+        )
+    return ModelInfoResponse(**service.info())
 
 
 @router.get("/history", response_model=HistoryResponse)

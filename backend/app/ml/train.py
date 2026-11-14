@@ -29,7 +29,7 @@ def train_model(dataset_path: Path, model_dir: Path) -> dict[str, object]:
     texts = dataset["text"].astype(str).map(clean_text)
     labels = dataset["label"].astype(str)
     x_train, x_test, y_train, y_test = train_test_split(
-        texts, labels, test_size=0.25, random_state=42, stratify=labels
+        texts, labels, test_size=0.30, random_state=42, stratify=labels
     )
     vectorizer = TfidfVectorizer(ngram_range=(1, 2), min_df=1, max_features=5000)
     x_train_vectors = vectorizer.fit_transform(x_train)
@@ -58,6 +58,8 @@ def train_model(dataset_path: Path, model_dir: Path) -> dict[str, object]:
         ).tolist(),
         "labels": ["likely_true", "misinformation"],
         "test_samples": len(y_test),
+        "train_samples": len(y_train),
+        "evaluation_note": "Holdout metrics from the small illustrative development dataset; not representative of real-world accuracy.",
     }
     model_dir.mkdir(parents=True, exist_ok=True)
     classifier_path, vectorizer_path = model_paths(model_dir)
