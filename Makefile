@@ -1,4 +1,4 @@
-.PHONY: install backend frontend test train train-baselines tune-models validate-pheme prepare-dataset analyze-dataset create-splits prepare-splits format lint docker-up docker-down
+.PHONY: install backend frontend test train train-baselines tune-models evaluate-final validate-pheme prepare-dataset analyze-dataset create-splits prepare-splits format lint docker-up docker-down
 
 PYTHON := $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 
@@ -18,6 +18,8 @@ train-baselines:
 	PYTHONPATH=backend $(PYTHON) -m app.ml.train_baselines
 tune-models:
 	PYTHONPATH=backend $(PYTHON) -m app.ml.tune_models --manifest backend/data/splits/pheme_split_manifest.json
+evaluate-final:
+	PYTHONPATH=backend $(PYTHON) -m app.ml.evaluate_final_model
 validate-pheme:
 	PYTHONPATH=backend $(PYTHON) -m app.ml.validate_pheme --raw-dir backend/data/raw/pheme --report backend/data/reports/pheme_validation.json
 prepare-dataset:

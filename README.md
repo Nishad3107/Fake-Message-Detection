@@ -95,6 +95,10 @@ Run `make train-baselines` after `make prepare-splits`. The experiment fits one 
 
 Run `make tune-models` after the baseline experiment. Tuning uses only the training split with event-grouped `StratifiedGroupKFold`; each fold fits its own TF-IDF vectorizer. The selected candidates are then evaluated on validation only. The final test split is not loaded or scored. Reports are written to `backend/data/reports/model_comparison/` and selected artifacts to the ignored `backend/models/tuned/` directory. See `docs/hyperparameter-tuning.md` for the search space, results, and limitations.
 
+## Final evaluation
+
+Run `make evaluate-final` only after the candidate configuration is frozen. The command fits the tuned Multinomial Naive Bayes pipeline on train plus validation, evaluates the unseen test events once, and writes final metrics, predictions, confusion matrices, event-wise results, and calibration diagnostics under `backend/data/reports/model_comparison/`. It does not retune or use test results for model selection. See `docs/final-model-evaluation.md`.
+
 ## Leakage-safe data splitting
 
 Run `make create-splits` after preparation. The deterministic script selects five training events, two validation events, and two test events while requiring all three labels in each subset. It keeps events and threads disjoint, writes `backend/data/reports/grouping_report.json`, and writes the ignored manifest to `backend/data/splits/pheme_split_manifest.json`. It does not train a model. See `docs/data-splitting-strategy.md` for the exact allocation and limitations.
