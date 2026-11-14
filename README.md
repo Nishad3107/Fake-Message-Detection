@@ -87,6 +87,10 @@ make create-splits
 
 The preparation script creates `backend/data/processed/pheme_veracity.csv` with `text`, `label`, `event`, `thread_id`, and `source_tweet_id` columns. It preserves the raw files, excludes non-rumor branches from the veracity task, and does not train a model. See `docs/dataset-card.md` and `docs/exploratory-data-analysis.md` for the actual counts, label policy, bias risks, and split recommendation.
 
+## Baseline model comparison
+
+Run `make train-baselines` after `make prepare-splits`. The experiment fits one TF-IDF vectorizer on training text only, compares a majority baseline, Multinomial Naive Bayes, class-balanced Logistic Regression, and LinearSVC on validation data, and keeps the test split unevaluated for model selection. Results are written to `backend/data/reports/model_comparison/`; model artifacts and the vectorizer are written to the ignored `backend/models/baselines/` directory. See `docs/baseline-model-comparison.md` for the configuration, validation results, and confidence semantics.
+
 ## Leakage-safe data splitting
 
 Run `make create-splits` after preparation. The deterministic script selects five training events, two validation events, and two test events while requiring all three labels in each subset. It keeps events and threads disjoint, writes `backend/data/reports/grouping_report.json`, and writes the ignored manifest to `backend/data/splits/pheme_split_manifest.json`. It does not train a model. See `docs/data-splitting-strategy.md` for the exact allocation and limitations.
