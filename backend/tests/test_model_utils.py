@@ -13,3 +13,7 @@ def test_detect_keywords_returns_known_terms() -> None:
         "viral",
         "warning",
     ]
+
+
+def test_clean_text_preserves_hashtag_signal() -> None:
+    assert "hashtag_breaking" in clean_text("#Breaking news")

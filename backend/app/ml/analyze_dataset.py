@@ -216,6 +216,10 @@ def _leakage_report(
     metadata_columns = [
         column for column in frame.columns if column not in REQUIRED_COLUMNS
     ]
+    event_column = "source_event" if "source_event" in frame.columns else "event"
+    thread_column = (
+        "source_tweet_id" if "source_tweet_id" in frame.columns else "thread_id"
+    )
     return {
         "exact_duplicate_texts": duplicates["duplicate_text_groups"],
         "near_duplicate_pairs": _near_duplicate_pairs(
@@ -231,8 +235,8 @@ def _leakage_report(
             else "Unknown for a synthetic sample; inspect duplicates before any split."
         ),
         "recommended_split": (
-            "Group by source_event or thread before train/validation/test splitting."
-            if source == "real_pheme" and "source_event" in frame.columns
+            f"Group by {event_column} and {thread_column} before train/validation/test splitting."
+            if source == "real_pheme" and event_column in frame.columns
             else "Use a fixed, documented split after reviewing duplicates."
         ),
         "metadata_label_leakage_note": (
@@ -424,6 +428,26 @@ def analyze_dataset(
                 total and max(distribution.values()) / total >= 0.8
             ),
             "threshold": "Severe imbalance is flagged when one label is at least 80% of records.",
+        },
+        "dataset_structure": {
+            "event_column": "event" if "event" in frame.columns else None,
+            "thread_column": "thread_id" if "thread_id" in frame.columns else None,
+            "event_count": (
+                int(frame["event"].nunique()) if "event" in frame.columns else None
+            ),
+            "thread_count": (
+                int(frame["thread_id"].nunique())
+                if "thread_id" in frame.columns
+                else None
+            ),
+            "event_distribution": (
+                {
+                    str(key): int(value)
+                    for key, value in frame["event"].value_counts().to_dict().items()
+                }
+                if "event" in frame.columns
+                else {}
+            ),
         },
     }
     report["leakage_analysis"] = _leakage_report(frame, source, duplicate_info)

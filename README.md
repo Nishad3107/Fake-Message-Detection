@@ -74,16 +74,17 @@ The script cleans text, performs a fixed-seed 70/30 stratified holdout, fits TF-
 
 The current `backend/data/sample_dataset.csv` is a 20-row synthetic development dataset only. It must not be used for final academic evaluation.
 
-The preferred real-data direction is the PHEME Rumour Detection and Veracity Classification dataset. Its official record is <https://figshare.com/articles/dataset/PHEME_dataset_for_Rumour_Detection_and_Veracity_Classification/6392078>. The current environment can reach the record page, but the official archive download returned HTTP 403, so no PHEME data has been added automatically. Do not substitute LIAR or another dataset without documenting that decision.
+The project now uses the manually downloaded PHEME Rumour Detection and Veracity Classification dataset. Its official record is <https://figshare.com/articles/dataset/PHEME_dataset_for_Rumour_Detection_and_Veracity_Classification/6392078>. The original archive is preserved outside the repository; the copied raw event tree is ignored by Git.
 
-After manually downloading and extracting PHEME, place the untouched event tree under `backend/data/raw/pheme/`, then run:
+The raw event tree is under `backend/data/raw/pheme/`. Validate, prepare, and analyze it with:
 
 ```bash
+make validate-pheme
 make prepare-dataset
-cat backend/data/reports/pheme_quality.json
+make analyze-dataset
 ```
 
-The preparation script creates `backend/data/processed/pheme_veracity.csv` with `text`, `label`, `source_event`, and `source_tweet_id` columns, and writes a quality report. It preserves the raw files, skips non-rumor branches for the preferred `true`/`false`/`unverified` veracity task, and does not train a model. See `docs/dataset-card.md` for the license, label policy, expected raw tree, bias risks, and split recommendation.
+The preparation script creates `backend/data/processed/pheme_veracity.csv` with `text`, `label`, `event`, `thread_id`, and `source_tweet_id` columns. It preserves the raw files, excludes non-rumor branches from the veracity task, and does not train a model. See `docs/dataset-card.md` and `docs/exploratory-data-analysis.md` for the actual counts, label policy, bias risks, and split recommendation.
 
 ## Exploratory data analysis
 

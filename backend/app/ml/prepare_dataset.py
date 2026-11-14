@@ -1,7 +1,7 @@
 """Prepare extracted PHEME files without modifying the raw dataset.
 
 The PHEME release is organized by event, then ``rumours``/``non-rumours``,
-then tweet-id directories containing ``source-tweet`` JSON and annotations.
+then tweet-id directories containing ``source-tweets`` JSON and annotations.
 This script creates a veracity dataset from annotated rumor directories only.
 Non-rumor directories are counted and skipped because the preferred academic
 labels for this project are true, false, and unverified.
@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any
 
 logger = logging.getLogger(__name__)
-OUTPUT_COLUMNS = ["text", "label", "source_event", "source_tweet_id"]
+OUTPUT_COLUMNS = ["text", "label", "event", "thread_id", "source_tweet_id"]
 LABELS = {"true", "false", "unverified"}
 
 
@@ -33,13 +33,18 @@ def _normalize_label(annotation: dict[str, Any]) -> str | None:
         return "true"
     if _truthy(annotation.get("misinformation")):
         return "false"
-    if ("true" in annotation and "misinformation" in annotation) and not _truthy(annotation.get("true")) and not _truthy(annotation.get("misinformation")):
+    if (
+        ("true" in annotation and "misinformation" in annotation)
+        and not _truthy(annotation.get("true"))
+        and not _truthy(annotation.get("misinformation"))
+    ):
         return "unverified"
     return None
 
 
 def _find_source_text(tweet_dir: Path) -> str | None:
-    candidates = sorted((tweet_dir / "source-tweet").glob("*.json"))
+    candidates = sorted((tweet_dir / "source-tweets").glob("*.json"))
+    candidates += sorted((tweet_dir / "source-tweet").glob("*.json"))
     candidates += sorted(tweet_dir.glob("*.json"))
     for candidate in candidates:
         if candidate.name in {"annotation.json", "structure.json"}:
@@ -55,7 +60,9 @@ def _find_source_text(tweet_dir: Path) -> str | None:
     return None
 
 
-def prepare_dataset(raw_dir: Path, output_path: Path, report_path: Path) -> dict[str, Any]:
+def prepare_dataset(
+    raw_dir: Path, output_path: Path, report_path: Path
+) -> dict[str, Any]:
     if not raw_dir.exists():
         raise FileNotFoundError(
             f"PHEME raw directory not found: {raw_dir}. Download and extract the official release first."
@@ -101,7 +108,8 @@ def prepare_dataset(raw_dir: Path, output_path: Path, report_path: Path) -> dict
         row = {
             "text": re.sub(r"\s+", " ", text).strip(),
             "label": label,
-            "source_event": event_dir.name,
+            "event": event_dir.name,
+            "thread_id": tweet_dir.name,
             "source_tweet_id": tweet_dir.name,
         }
         rows.append(row)
@@ -139,8 +147,12 @@ def prepare_dataset(raw_dir: Path, output_path: Path, report_path: Path) -> dict
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--raw-dir", type=Path, default=Path("backend/data/raw/pheme"))
-    parser.add_argument("--output", type=Path, default=Path("backend/data/processed/pheme_veracity.csv"))
-    parser.add_argument("--report", type=Path, default=Path("backend/data/reports/pheme_quality.json"))
+    parser.add_argument(
+        "--output", type=Path, default=Path("backend/data/processed/pheme_veracity.csv")
+    )
+    parser.add_argument(
+        "--report", type=Path, default=Path("backend/data/reports/pheme_quality.json")
+    )
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     print(json.dumps(prepare_dataset(args.raw_dir, args.output, args.report), indent=2))
