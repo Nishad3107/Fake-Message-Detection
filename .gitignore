@@ -11,8 +11,14 @@ backend/models/metrics.json
 backend/data/history.db
 backend/data/raw/pheme/*
 !backend/data/raw/pheme/.gitkeep
+backend/data/raw/indian/*
+!backend/data/raw/indian/hinfakenews/
+backend/data/raw/indian/hinfakenews/*.xlsx
+backend/data/raw/indian/hinfakenews/source_metadata.json
 backend/data/processed/*.csv
+backend/data/processed/indian/*.csv
 backend/data/reports/*.json
+backend/data/reports/indian/*.json
 backend/data/reports/eda/
 backend/data/splits/*.json
 backend/data/processed/splits/*.csv

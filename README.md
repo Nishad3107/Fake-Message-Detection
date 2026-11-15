@@ -100,6 +100,25 @@ make create-splits
 
 The preparation script creates `backend/data/processed/pheme_veracity.csv` with `text`, `label`, `event`, `thread_id`, and `source_tweet_id` columns. It preserves the raw files, excludes non-rumor branches from the veracity task, and does not train a model. See `docs/dataset-card.md` and `docs/exploratory-data-analysis.md` for the actual counts, label policy, bias risks, and split recommendation.
 
+### Separate Indian dataset audit
+
+HinFakeNews is kept as a separate Indian news-article benchmark and is not
+combined with PHEME. To audit a manually supplied workbook, copy it to
+`backend/data/raw/indian/hinfakenews/HinFakeNews-V1.xlsx` and run:
+
+```bash
+make audit-indian-dataset
+```
+
+The audit writes local, ignored JSON reports under
+`backend/data/reports/indian/`. It does not train a model or create a processed
+CSV automatically. Because the workbook currently has two candidate text
+columns (`TITLE`, `CONTENT`) and undocumented `BOOL` label semantics, an
+explicit mapping must be approved before running the preparation script. See
+`docs/indian-dataset-card.md` for the observed schema, label counts, leakage
+risks, and license questions. The raw workbook remains ignored and must not be
+committed without redistribution permission.
+
 ## Reproducible end-to-end workflow
 
 After placing the manually obtained PHEME event tree under
