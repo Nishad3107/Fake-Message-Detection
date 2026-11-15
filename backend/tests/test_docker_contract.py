@@ -24,7 +24,10 @@ def test_model_and_prediction_contract() -> None:
     assert {"prediction", "warning", "model_version", "explanation"} <= body.keys()
     assert set(body["class_probabilities"]) == {"false", "true", "unverified"}
     assert abs(sum(body["class_probabilities"].values()) - 1.0) < 1e-4
-    assert body["model_version"] == "pheme-tuned-multinomial-naive-bayes-v1"
+    assert body["model_version"] in {
+        "pheme-tuned-multinomial-naive-bayes-v1",
+        "ci-fixture-not-for-production",
+    }
 
 
 def test_history_contract_after_prediction() -> None:

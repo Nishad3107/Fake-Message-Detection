@@ -1,4 +1,4 @@
-.PHONY: install backend frontend test train train-baselines tune-models evaluate-final analyze-errors validate-pheme validate-dataset prepare-dataset analyze-dataset create-splits prepare-splits reproduce-experiment reproduce-experiment-safe verify-experiment check-environment format lint docker-up docker-down
+.PHONY: install backend frontend test build train train-baselines tune-models evaluate-final analyze-errors validate-pheme validate-dataset prepare-dataset analyze-dataset create-splits prepare-splits reproduce-experiment reproduce-experiment-safe verify-experiment check-environment format lint repo-checks docker-up docker-down
 
 PYTHON := $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 
@@ -12,6 +12,8 @@ frontend:
 	cd frontend && npm run dev
 test:
 	PYTHONPATH=backend $(PYTHON) -m pytest -q backend/tests
+build:
+	cd frontend && npm run build
 train:
 	PYTHONPATH=backend $(PYTHON) -m app.ml.train --dataset backend/data/sample_dataset.csv --model-dir backend/models
 train-baselines:
@@ -47,6 +49,8 @@ format:
 	$(PYTHON) -m black backend/app backend/tests
 lint:
 	$(PYTHON) -m ruff check backend/app backend/tests
+repo-checks:
+	./tools/ci_repository_checks.sh
 docker-up:
 	@test -f .env || cp .env.example .env
 	docker compose up --build

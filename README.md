@@ -14,7 +14,7 @@ An explainable full-stack application for analyzing social-media posts with a TF
 ## Quick start
 
 ```bash
-cd /Users/nishadtembhurnekar/Desktop/Fake-Message-Detection
+cd <repository-root>
 cp .env.example .env
 python3.11 -m venv .venv
 source .venv/bin/activate
@@ -148,9 +148,14 @@ SQLite history is stored at `backend/data/history.db` for local runs. Docker sto
 make test       # backend unit/API tests
 make format     # Black
 make lint       # Ruff
+make build      # frontend production build
+make repo-checks # tracked-file and secret checks
 make docker-up
 make docker-down
 ```
+
+GitHub Actions runs the same backend, frontend, and repository quality gates on
+pushes and pull requests targeting `main`. See `docs/ci-and-quality-gates.md`.
 
 Additional workflow checks:
 
