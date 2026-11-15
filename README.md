@@ -153,6 +153,13 @@ npm test
 npm run build
 ```
 
+The frontend includes Overview, Analyze, History, Methodology, and Results
+pages. Results are sourced from `frontend/src/data/research-results.json`,
+while live predictions and history always come from FastAPI. Set `VITE_API_URL`
+when the backend is not running at `http://localhost:8000`. See
+`docs/frontend-ml-results.md` for the page/API contract and accessibility
+decisions.
+
 The frontend test suite covers the application shell and CTA rendering. The backend suite covers validation, model availability, preprocessing, predictions, endpoints, and SQLite history.
 
 The frontend sends requests to `VITE_API_URL` when provided, otherwise it uses `http://localhost:8000`.

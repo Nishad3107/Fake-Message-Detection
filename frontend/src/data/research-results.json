@@ -1,0 +1,39 @@
+{
+  "source": "PHEME Rumour Detection and Veracity Classification",
+  "records": 2271,
+  "labels": ["false", "true", "unverified"],
+  "split": {"train": 1507, "validation": 467, "test": 297, "test_events": 2},
+  "model": "Tuned Multinomial Naive Bayes",
+  "configuration": {"tfidf": "word n-grams (1, 2), min_df=3, sublinear_tf=false", "alpha": 0.1, "fit_prior": false},
+  "validation": {"macro_f1": 0.372437},
+  "grouped_cv": {"macro_f1_mean": 0.197411, "macro_f1_std": 0.113824},
+  "baseline_models": [
+    {"name": "Majority baseline", "macro_f1": 0.194949, "accuracy": 0.413276, "weighted_f1": 0.241704},
+    {"name": "Multinomial Naive Bayes", "macro_f1": 0.250895, "accuracy": 0.428266, "weighted_f1": 0.292193},
+    {"name": "Logistic Regression", "macro_f1": 0.343505, "accuracy": 0.415418, "weighted_f1": 0.374263},
+    {"name": "LinearSVC", "macro_f1": 0.292217, "accuracy": 0.346895, "weighted_f1": 0.316932}
+  ],
+  "final_test": {
+    "accuracy": 0.225589,
+    "macro_precision": 0.228806,
+    "macro_recall": 0.267193,
+    "macro_f1": 0.211379,
+    "weighted_f1": 0.232157,
+    "log_loss": 1.694920,
+    "roc_auc_ovr": 0.417280,
+    "brier_score": 0.314570,
+    "ece": 0.378936,
+    "confusion_matrix": [[12, 51, 48], [46, 40, 65], [7, 13, 15]],
+    "per_class": {
+      "false": {"precision": 0.184615, "recall": 0.108108, "f1": 0.136364, "support": 111},
+      "true": {"precision": 0.384615, "recall": 0.264901, "f1": 0.313725, "support": 151},
+      "unverified": {"precision": 0.117188, "recall": 0.428571, "f1": 0.184049, "support": 35}
+    }
+  },
+  "events": [
+    {"name": "Germanwings", "records": 238, "accuracy": 0.252101, "macro_f1": 0.239687},
+    {"name": "Gurlitt", "records": 59, "accuracy": 0.118644, "macro_f1": null}
+  ],
+  "error_analysis": {"high_confidence_wrong": 25, "low_confidence_predictions": 181, "total_test_predictions": 297, "largest_confusion": "true → unverified (65)"},
+  "notes": ["Validation and final test metrics use different data.", "The test set contains two held-out events.", "Model probabilities are uncalibrated outputs, not factual truth probabilities."]
+}

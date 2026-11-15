@@ -142,6 +142,7 @@ def history_summary(settings: Settings) -> dict[str, Any]:
                 SUM(CASE WHEN classification = 'unverified' THEN 1 ELSE 0 END) AS unverified,
                 SUM(CASE WHEN classification = 'likely_true' THEN 1 ELSE 0 END) AS likely_true,
                 SUM(CASE WHEN classification = 'misinformation' THEN 1 ELSE 0 END) AS misinformation,
+                SUM(CASE WHEN low_confidence = 1 THEN 1 ELSE 0 END) AS low_confidence,
                 COALESCE(AVG(confidence), 0) AS average_confidence FROM analyses"""
         ).fetchone()
     return {
@@ -151,5 +152,6 @@ def history_summary(settings: Settings) -> dict[str, Any]:
         "unverified": row["unverified"] or 0,
         "likely_true": row["likely_true"] or 0,
         "misinformation": row["misinformation"] or 0,
+        "low_confidence": row["low_confidence"] or 0,
         "average_confidence": round(float(row["average_confidence"] or 0), 4),
     }
