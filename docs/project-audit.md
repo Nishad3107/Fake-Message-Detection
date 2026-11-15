@@ -2,6 +2,10 @@
 
 Audit date: 2026-11-14
 
+> Historical snapshot: this audit describes the repository before the real PHEME
+> import and final three-class workflow. For the current academic state, use
+> `final-academic-report.md`, `dataset-card.md`, and the generated reports.
+
 ## Current project objective
 
 The repository is a prototype misinformation-detection system for short, social-media-style English posts. It predicts one of two language-pattern classes: `misinformation` or `likely_true`. The name and product copy describe misinformation detection, while the current training examples are synthetic claim-like posts written for development.

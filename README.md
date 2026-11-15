@@ -1,11 +1,11 @@
 # Misinformation Detection System
 
-An explainable full-stack application for analyzing social-media posts with a TF-IDF + Logistic Regression baseline. It returns a probabilistic language-pattern signal, not a factual verdict or substitute for source verification.
+An explainable full-stack application for analyzing social-media rumor messages with classical TF-IDF baselines and a frozen tuned Multinomial Naive Bayes candidate. It returns a probabilistic language-pattern signal, not a factual verdict or substitute for source verification.
 
 ## Stack
 
 - Backend: Python 3.11+, FastAPI, Pydantic, pandas, NumPy, scikit-learn
-- NLP: cleaned text, TF-IDF word n-grams, Logistic Regression
+- NLP: cleaned text, TF-IDF word n-grams, classical baseline comparison, frozen Multinomial Naive Bayes candidate
 - Frontend: React, TypeScript, Vite, Tailwind CSS
 - Quality: pytest, Black, Ruff, type hints
 - Persistence: SQLite by default, with a repository boundary for a future PostgreSQL adapter
@@ -213,6 +213,11 @@ while live predictions and history always come from FastAPI. Set `VITE_API_URL`
 when the backend is not running at `http://localhost:8000`. See
 `docs/frontend-ml-results.md` for the page/API contract and accessibility
 decisions.
+
+For academic submission preparation, see `docs/final-academic-report.md`,
+`docs/viva-preparation.md`, and `docs/presentation-outline.md`. These documents
+use the generated PHEME reports and distinguish validation, grouped
+cross-validation, and final unseen-event test results.
 
 The frontend test suite covers the application shell and CTA rendering. The backend suite covers validation, model availability, preprocessing, predictions, endpoints, and SQLite history.
 
