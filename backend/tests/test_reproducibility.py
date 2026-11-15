@@ -7,7 +7,8 @@ from app.ml import check_environment, run_experiment, validate_experiment
 
 
 def test_experiment_stages_have_academic_order() -> None:
-    assert [label for label, _, _ in run_experiment.STAGES] == [
+    paths = run_experiment._paths(Path("/tmp/example-run"))
+    assert [label for label, _, _ in run_experiment._stage_plan(paths)] == [
         "validate dataset",
         "prepare dataset",
         "analyze dataset",
@@ -24,6 +25,21 @@ def test_runner_rejects_missing_pheme_dataset(monkeypatch, tmp_path: Path) -> No
     monkeypatch.setattr(run_experiment, "RAW_DIR", tmp_path / "missing-pheme")
     with pytest.raises(FileNotFoundError, match="PHEME raw dataset"):
         run_experiment.run_experiment(tmp_path / "summary.json")
+
+
+def test_runner_refuses_to_reuse_output_directory(tmp_path: Path) -> None:
+    output_dir = tmp_path / "run"
+    output_dir.mkdir()
+    with pytest.raises(FileExistsError, match="Refusing to reuse"):
+        run_experiment.run_experiment(output_dir)
+
+
+def test_frozen_hashes_are_recorded(tmp_path: Path) -> None:
+    frozen = tmp_path / "frozen.txt"
+    frozen.write_text("unchanged", encoding="utf-8")
+    hashes = run_experiment._hash_paths([frozen, tmp_path / "missing"])
+    assert hashes[str(frozen)] is not None
+    assert hashes[str(tmp_path / "missing")] is None
 
 
 def test_environment_report_is_non_destructive() -> None:

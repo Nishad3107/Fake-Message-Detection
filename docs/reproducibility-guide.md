@@ -28,10 +28,18 @@ development fallback.
 
 ## Reproduce the ML workflow
 
-Run the complete staged experiment:
+Run the complete staged experiment. The command creates a unique isolated
+directory and does not overwrite the frozen model, reports, or frontend
+research snapshot:
 
 ```bash
-make reproduce-experiment
+make reproduce-experiment-safe
+```
+
+The direct equivalent is:
+
+```bash
+python -m app.ml.run_experiment --output-dir backend/data/experiments/run_<UTC_TIMESTAMP>
 ```
 
 The order is:
@@ -46,9 +54,13 @@ The order is:
 8. Fit and evaluate the frozen candidate once on the untouched test events.
 9. Generate error-analysis and explainability reports.
 
-Every stage stops on failure. The runner records timestamps, durations,
-package versions, split sizes, report references, and the current Git commit in
-`backend/data/reports/experiment_summary.json`.
+Every stage stops on failure. The runner records timestamps, per-stage and total
+durations, package versions, split sizes, report references, and the current Git
+commit in the isolated `experiment_summary.json`. A comparison report is written
+beside it as `reproduction_comparison.json`.
+
+`make reproduce-experiment` also uses an isolated timestamped directory. No
+runner mode writes to the existing frozen output paths.
 
 Individual commands are available when investigating a stage:
 
@@ -69,6 +81,10 @@ event/thread separation, frozen test-selection policy, final artifact path,
 and frontend research metrics. It writes a diagnostic report to
 `backend/data/reports/experiment_validation.json` and fails clearly when an
 input or output is missing.
+
+The current safe run was `run_20261115T042010Z`, completed in 62.54539 seconds,
+and matched the frozen final metrics exactly. Its frozen-artifact hash checks
+are recorded in `backend/data/experiments/run_20261115T042010Z/experiment_summary.json`.
 
 ## Application workflow
 

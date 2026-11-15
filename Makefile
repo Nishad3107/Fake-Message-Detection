@@ -1,4 +1,4 @@
-.PHONY: install backend frontend test train train-baselines tune-models evaluate-final analyze-errors validate-pheme validate-dataset prepare-dataset analyze-dataset create-splits prepare-splits reproduce-experiment verify-experiment check-environment format lint docker-up docker-down
+.PHONY: install backend frontend test train train-baselines tune-models evaluate-final analyze-errors validate-pheme validate-dataset prepare-dataset analyze-dataset create-splits prepare-splits reproduce-experiment reproduce-experiment-safe verify-experiment check-environment format lint docker-up docker-down
 
 PYTHON := $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 
@@ -35,6 +35,10 @@ prepare-splits:
 	PYTHONPATH=backend $(PYTHON) -m app.ml.prepare_splits
 reproduce-experiment:
 	PYTHONPATH=backend $(PYTHON) -m app.ml.run_experiment
+reproduce-experiment-safe:
+	@test -d backend/data/raw/pheme || (echo "PHEME dataset missing at backend/data/raw/pheme" && exit 1)
+	PYTHONPATH=backend $(PYTHON) -m app.ml.check_environment --strict
+	PYTHONPATH=backend $(PYTHON) -m app.ml.run_experiment --output-dir backend/data/experiments/run_$$(date -u +%Y%m%dT%H%M%SZ)
 verify-experiment:
 	PYTHONPATH=backend $(PYTHON) -m app.ml.validate_experiment
 check-environment:

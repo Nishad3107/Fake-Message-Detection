@@ -90,17 +90,17 @@ The preparation script creates `backend/data/processed/pheme_veracity.csv` with 
 ## Reproducible end-to-end workflow
 
 After placing the manually obtained PHEME event tree under
-`backend/data/raw/pheme/`, run:
+`backend/data/raw/pheme/`, run the isolated workflow:
 
 ```bash
-make reproduce-experiment
+make reproduce-experiment-safe
 make verify-experiment
 ```
 
 The runner executes validation, preparation, EDA, event-level splitting,
 preprocessing, baseline comparison, grouped tuning, final evaluation, and
 error analysis in order. It stops on the first failure and records the complete
-run in `backend/data/reports/experiment_summary.json`. It never accepts the
+run under `backend/data/experiments/run_<UTC_TIMESTAMP>/`. It never accepts the
 synthetic sample dataset for the academic workflow. See
 `docs/reproducibility-guide.md` for fresh-clone setup, Docker, generated-file
 policy, and limitations.

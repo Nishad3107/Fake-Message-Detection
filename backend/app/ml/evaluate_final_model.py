@@ -401,6 +401,11 @@ def evaluate_final(
     artifact_path: Path = ARTIFACT_PATH,
     report_dir: Path = REPORT_DIR,
     model_dir: Path = MODEL_DIR,
+    train_path: Path = TRAIN_PATH,
+    validation_path: Path = VALIDATION_PATH,
+    test_path: Path = TEST_PATH,
+    baseline_report_path: Path = REPORT_DIR / "baseline_results.json",
+    tuning_report_path: Path = TUNING_REPORT,
 ) -> dict[str, Any]:
     config = _load_json(config_path)
     if (
@@ -410,9 +415,9 @@ def evaluate_final(
         raise ValueError(
             "Final configuration is not the frozen tuned Multinomial Naive Bayes candidate"
         )
-    train = _load_split(TRAIN_PATH)
-    validation = _load_split(VALIDATION_PATH)
-    test = _load_split(TEST_PATH)
+    train = _load_split(train_path)
+    validation = _load_split(validation_path)
+    test = _load_split(test_path)
     if (
         set(train["event"]) & set(validation["event"])
         or set(train["event"]) & set(test["event"])
@@ -459,7 +464,7 @@ def evaluate_final(
         "preprocessing_configuration": options_as_dict(options),
         "labels": LABELS,
         "model_version": "pheme-tuned-multinomial-naive-bayes-v1",
-        "training_dataset_reference": [str(TRAIN_PATH), str(VALIDATION_PATH)],
+        "training_dataset_reference": [str(train_path), str(validation_path)],
         "training_timestamp": training_ended,
         "training_duration_seconds": round(training_duration, 6),
         "configuration_reference": str(config_path),
@@ -485,8 +490,8 @@ def evaluate_final(
         json.dumps(event_metrics, indent=2) + "\n", encoding="utf-8"
     )
     _write_reliability_data(calibration, report_dir / "final_reliability_diagram.png")
-    baseline = _load_json(REPORT_DIR / "baseline_results.json")
-    tuning = _load_json(TUNING_REPORT)
+    baseline = _load_json(baseline_report_path)
+    tuning = _load_json(tuning_report_path)
     result = {
         "model": "tuned_multinomial_naive_bayes",
         "artifact": str(artifact_path),
@@ -497,7 +502,7 @@ def evaluate_final(
             "combined_records": len(fitting),
         },
         "test_data": {
-            "path": str(TEST_PATH),
+            "path": str(test_path),
             "records": len(test),
             "events": sorted(test["event"].unique()),
         },
@@ -565,10 +570,37 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=CONFIG_PATH)
     parser.add_argument("--artifact", type=Path, default=ARTIFACT_PATH)
+    parser.add_argument("--report-dir", type=Path, default=REPORT_DIR)
+    parser.add_argument("--model-dir", type=Path, default=MODEL_DIR)
+    parser.add_argument("--train", type=Path, default=TRAIN_PATH)
+    parser.add_argument("--validation", type=Path, default=VALIDATION_PATH)
+    parser.add_argument("--test", type=Path, default=TEST_PATH)
+    parser.add_argument(
+        "--baseline-report",
+        type=Path,
+        default=REPORT_DIR / "baseline_results.json",
+    )
+    parser.add_argument("--tuning-report", type=Path, default=TUNING_REPORT)
     args = parser.parse_args()
     if not args.config.is_file():
-        freeze_final_config(args.config)
-    result = evaluate_final(args.config, args.artifact)
+        freeze_final_config(
+            args.config,
+            args.tuning_report,
+            args.report_dir / "tuning_summary.json",
+            args.report_dir.parent / "preprocessing_report.json",
+            args.report_dir.parent.parent / "splits" / "pheme_split_manifest.json",
+        )
+    result = evaluate_final(
+        args.config,
+        args.artifact,
+        args.report_dir,
+        args.model_dir,
+        args.train,
+        args.validation,
+        args.test,
+        args.baseline_report,
+        args.tuning_report,
+    )
     print(
         json.dumps(
             {

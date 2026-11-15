@@ -661,8 +661,12 @@ def main() -> None:
     parser.add_argument("--test", type=Path, default=TEST_PATH)
     parser.add_argument("--predictions", type=Path, default=PREDICTIONS_PATH)
     parser.add_argument("--artifact", type=Path, default=ARTIFACT_PATH)
+    parser.add_argument("--report-dir", type=Path, default=REPORT_DIR)
+    parser.add_argument("--chart-dir", type=Path, default=CHART_DIR)
     args = parser.parse_args()
-    report = analyze_errors(args.test, args.predictions, args.artifact)
+    report = analyze_errors(
+        args.test, args.predictions, args.artifact, args.report_dir, args.chart_dir
+    )
     print(
         json.dumps(
             {
