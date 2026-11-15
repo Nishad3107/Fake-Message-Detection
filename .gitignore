@@ -21,6 +21,7 @@ backend/data/reports/*.json
 backend/data/reports/indian/*.json
 backend/data/reports/eda/
 backend/data/splits/*.json
+backend/data/splits/indian/*.json
 backend/data/processed/splits/*.csv
 backend/data/reports/model_comparison/
 backend/models/baselines/

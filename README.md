@@ -113,11 +113,28 @@ make audit-indian-dataset
 The audit writes local, ignored JSON reports under
 `backend/data/reports/indian/`. It does not train a model or create a processed
 CSV automatically. Because the workbook currently has two candidate text
-columns (`TITLE`, `CONTENT`) and undocumented `BOOL` label semantics, an
-explicit mapping must be approved before running the preparation script. See
+columns (`TITLE`, `CONTENT`), an explicit text mapping must be approved before
+running the preparation script. The supplied dataset description defines
+`BOOL=0` as `FAKE` and `BOOL=1` as `REAL`. See
 `docs/indian-dataset-card.md` for the observed schema, label counts, leakage
-risks, and license questions. The raw workbook remains ignored and must not be
-committed without redistribution permission.
+risks, including the stated fake-article justifications that must not leak into
+an article-only classifier, and license questions. The raw workbook remains
+ignored and must not be committed without redistribution permission.
+
+After label mapping approval, the local content benchmark can be prepared and
+split without training:
+
+```bash
+make prepare-indian-dataset
+make create-indian-splits
+```
+
+This creates ignored local files under `backend/data/processed/indian/` and
+`backend/data/splits/indian/`. The preparation uses `CONTENT`, preserves
+`TITLE` and URL/domain metadata, removes repeated normalized contents, and
+records a domain-grouped split. Training remains blocked until license terms
+and fake-article justification separation are approved. See
+`docs/indian-data-decision-record.md`.
 
 ## Reproducible end-to-end workflow
 

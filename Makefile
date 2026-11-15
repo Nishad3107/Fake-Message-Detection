@@ -1,4 +1,4 @@
-.PHONY: install backend frontend test build train train-baselines tune-models evaluate-final analyze-errors validate-pheme validate-dataset prepare-dataset analyze-dataset create-splits prepare-splits audit-indian-dataset reproduce-experiment reproduce-experiment-safe verify-experiment check-environment format lint repo-checks docker-up docker-down
+.PHONY: install backend frontend test build train train-baselines tune-models evaluate-final analyze-errors validate-pheme validate-dataset prepare-dataset analyze-dataset create-splits prepare-splits audit-indian-dataset prepare-indian-dataset create-indian-splits reproduce-experiment reproduce-experiment-safe verify-experiment check-environment format lint repo-checks docker-up docker-down
 
 PYTHON := $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 
@@ -37,6 +37,10 @@ prepare-splits:
 	PYTHONPATH=backend $(PYTHON) -m app.ml.prepare_splits
 audit-indian-dataset:
 	PYTHONPATH=backend $(PYTHON) -m app.ml.prepare_indian_dataset --audit --source backend/data/raw/indian/hinfakenews/HinFakeNews-V1.xlsx
+prepare-indian-dataset:
+	PYTHONPATH=backend $(PYTHON) -m app.ml.prepare_indian_benchmark
+create-indian-splits:
+	PYTHONPATH=backend $(PYTHON) -m app.ml.create_indian_splits
 reproduce-experiment:
 	PYTHONPATH=backend $(PYTHON) -m app.ml.run_experiment
 reproduce-experiment-safe:

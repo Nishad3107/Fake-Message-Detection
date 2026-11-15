@@ -103,7 +103,7 @@ before download or redistribution.
 
 | Dataset | Source and documented scope | Language / unit | Labels and modalities | Fit, risks, and manual work |
 |---|---|---|---|---|
-| **HinFakeNews** | [IndiaAI/AIkosh catalog](https://aikosh.indiaai.gov.in/home/datasets/details/hinfakenews_2.html); catalog describes approximately 68,000 Hindi real/fake news articles | Hindi; article with URL, title, content | Local workbook contains `BOOL` values `0` and `1`; semantic mapping is not confirmed from the workbook | **Recommended first feasibility candidate.** Indian/Hindi article context, but it is not PHEME-style social rumor veracity. Exact downloadable release, license terms, label mapping, duplicate policy, and split manifest must be confirmed manually. |
+| **HinFakeNews** | [IndiaAI/AIkosh catalog](https://aikosh.indiaai.gov.in/home/datasets/details/hinfakenews_2.html); approximately 68,000 Hindi real/fake news articles across political, social, and communal domains | Hindi; article with URL, title, content | Binary `BOOL`: `0=FAKE`, `1=REAL`; real articles are described as RNI-registered outlet content and fake articles as IFCN-approved fact-checker content | **Recommended first feasibility candidate.** Indian/Hindi article context, but it is not PHEME-style social rumor veracity. The exact workbook release, license terms, duplicate policy, and split manifest still require confirmation. |
 | **IFND** | [Peer-reviewed paper and dataset description](https://pmc.ncbi.nlm.nih.gov/articles/PMC8520332/), DOI `10.1007/s40747-021-00552-1`; paper reports 56,868 Indian news items and 2013–2021 coverage | Primarily Indian news; article/headline records | Binary `True/Fake`; text, image link, source, category, date | Strong Indian and multimodal context, but the paper documents synthetic/augmented fake text and scraped source structure. This creates duplication, augmentation, outlet/topic leakage, and unclear redistribution/licensing checks. Use only after manual access and provenance review. |
 | **FakeNewsIndia** | [Peer-reviewed paper](https://doi.org/10.1016/j.comcom.2022.01.003); 4,803 fake-news incidents from June 2016–December 2019, six Indian fact-checking sites | Indian fact-checking incidents; linked social content | Incident/fake-news collection; 5,031 Twitter links and 866 YouTube links are reported; a balanced real-news label is not documented in the abstract | Strong fit for source/URL/social-impact research, not a ready binary text classifier. Treat as an incident retrieval/impact track unless the released files provide compatible labels. Manual access and terms review required. |
 | **FactDrill** | [AAAI/ICWSM dataset paper](https://doi.org/10.1609/icwsm.v16i1.19384); 22,435 fact-checked social-media items, 2013–2020, 13 Indian languages | Multilingual; fact-checked social-media content | Multi-attribute, multi-lingual, multi-media repository; exact label schema and downloadable access must be checked from the release | **High-priority social-media follow-on.** Better conceptual match than article-only data, but task labels, licensing, access, and identity/deletion handling need verification before adoption. |
@@ -120,12 +120,22 @@ byte into the ignored repository path
 `backend/data/raw/indian/hinfakenews/HinFakeNews-V1.xlsx`. The audit found one
 sheet, `Real&Fake Combined`, with 68,754 article-style records and columns
 `URL`, `TITLE`, `CONTENT`, and `BOOL`. Observed `BOOL` values are `0` (22,057)
-and `1` (46,697), but their meanings are not confirmed by the workbook.
+and `1` (46,697); the supplied dataset description defines `0=FAKE` and
+`1=REAL`, with RNI-registered outlets as the real-news source and
+IFCN-approved fact-checkers as the fake-news source.
+
+The supplied description additionally states that fake-news rows include a
+justification alongside the news item. This is a high-priority leakage risk:
+fact-checking language may encode the label directly. Before any Indian model
+is trained, the team must define an article-only field or a separate
+evidence-grounded task and prove that post-hoc justifications do not cross the
+classification boundary.
 
 This is a separate Hindi-oriented news/article benchmark, not social-media
 thread data and not a PHEME extension. The raw workbook is ignored; audit JSON
 reports are generated locally; no normalized CSV or model was created because
-the label semantics, input text choice, provenance, and license still require
+the input text choice, justification-separation policy, exact release
+provenance, and license still require
 manual confirmation. See `docs/indian-dataset-card.md` for the exact audit and
 approval checklist. PHEME files, splits, reports, and the frozen model remain
 unchanged.
