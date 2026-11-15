@@ -1,0 +1,7 @@
+data/raw/
+data/processed/
+data/reports/
+data/experiments/
+models/
+__pycache__/
+*.pyc

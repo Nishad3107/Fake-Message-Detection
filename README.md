@@ -29,7 +29,7 @@ make backend
 make frontend
 ```
 
-Open http://localhost:5173. The app includes an overview landing page, analyzer, SQLite-backed dashboard, and methodology page. The backend automatically trains and persists a model under `backend/models/` when artifacts are absent or incompatible.
+Open http://localhost:5173. The app includes an overview landing page, analyzer, SQLite-backed dashboard, and methodology page. The backend loads the frozen model artifact from `backend/models/`; it does not train during application startup.
 
 ## Docker
 
@@ -39,6 +39,11 @@ docker compose up --build
 ```
 
 Frontend: http://localhost:5173 · API: http://localhost:8000 · Swagger UI: http://localhost:8000/docs
+
+For end-to-end verification, run `docker compose config`, start detached with
+`docker compose up --build -d`, then run `tools/verify_stack.sh`. The backend
+mounts the ignored frozen model and research reports read-only; Docker never
+trains or downloads a model. See `docs/docker-and-end-to-end-verification.md`.
 
 ## API
 

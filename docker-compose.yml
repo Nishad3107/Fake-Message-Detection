@@ -5,7 +5,10 @@ services:
     env_file: [.env]
     environment:
       DATABASE_PATH: /app/runtime/history.db
-    volumes: ["./backend/models:/app/models:ro", "history-data:/app/runtime"]
+    volumes:
+      - "./backend/models:/app/models:ro"
+      - "./backend/data/reports/model_comparison:/app/data/reports/model_comparison:ro"
+      - "history-data:/app/runtime"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 30s
@@ -14,7 +17,9 @@ services:
   frontend:
     build: ./frontend
     ports: ["5173:80"]
-    depends_on: [backend]
+    depends_on:
+      backend:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost/"]
       interval: 30s
