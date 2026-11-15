@@ -9,8 +9,14 @@ from app.core.config import Settings
 
 def _connect(settings: Settings) -> sqlite3.Connection:
     settings.database_path.parent.mkdir(parents=True, exist_ok=True)
+    if settings.database_path.exists():
+        try:
+            settings.database_path.chmod(0o600)
+        except OSError:
+            pass
     connection = sqlite3.connect(settings.database_path)
     connection.row_factory = sqlite3.Row
+    connection.execute("PRAGMA busy_timeout = 5000")
     return connection
 
 

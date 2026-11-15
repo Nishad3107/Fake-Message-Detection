@@ -4,7 +4,11 @@ import { motion } from 'framer-motion'
 import { predictPost, Prediction } from '../services/api'
 import { Route } from '../components/SiteShell'
 
-const examples = ['Breaking: share this shocking claim before it is deleted!', 'The city health department published its annual water quality report.', 'A secret miracle cure prevents every disease, experts are hiding it.']
+const examples = [
+  'Breaking: share this shocking claim before it is deleted!',
+  'The city health department published its annual water quality report.',
+  'A secret miracle cure prevents every disease, experts are hiding it.',
+]
 
 export default function AnalyzerPage({ onNavigate: _onNavigate }: { onNavigate: (route: Route) => void }) {
   const [text, setText] = useState('')
@@ -12,18 +16,63 @@ export default function AnalyzerPage({ onNavigate: _onNavigate }: { onNavigate: 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
+
   async function analyze() {
-    setError(''); setResult(null)
-    if (text.trim().length < 10) { setError('Enter at least 10 characters so the model has enough context.'); return }
+    setError('')
+    setResult(null)
+    if (text.trim().length < 10) {
+      setError('Enter at least 10 characters so the model has enough context.')
+      return
+    }
     setLoading(true)
-    try { setResult(await predictPost(text)) } catch (caught) { setError(caught instanceof Error ? caught.message : 'The analysis service is unavailable.') } finally { setLoading(false) }
+    try {
+      setResult(await predictPost(text))
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'The analysis service is unavailable.')
+    } finally {
+      setLoading(false)
+    }
   }
+
   async function copyResult() {
     if (!result) return
     await navigator.clipboard?.writeText(`${result.display_label} (${Math.round(result.confidence * 100)}%)\n${result.explanation}`)
-    setCopied(true); window.setTimeout(() => setCopied(false), 1800)
+    setCopied(true)
+    window.setTimeout(() => setCopied(false), 1800)
   }
+
   const confidence = result ? Math.round(result.confidence * 100) : 0
   const isFalse = result?.prediction === 'false'
-  return <main className="mx-auto max-w-7xl px-5 pb-24 pt-14 sm:px-8"><div className="mb-10 max-w-2xl"><p className="eyebrow">Analysis workspace</p><h1 className="mt-3 text-4xl font-semibold tracking-[-.04em] sm:text-5xl">What signal is this post sending?</h1><p className="mt-4 text-base leading-7 text-slate-500">Paste a post below. SignalCheck looks for learned language patterns—not whether a claim is definitively true.</p></div><div className="grid gap-8 lg:grid-cols-[.9fr_1.1fr]"><section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"><div className="flex items-center justify-between"><label htmlFor="post" className="text-sm font-semibold">Social media post</label><span className="text-xs text-slate-400">{text.length}/5000</span></div><textarea id="post" value={text} onChange={event => setText(event.target.value)} rows={11} maxLength={5000} placeholder="Paste the post you want to examine..." className="mt-4 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm leading-7 outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"/><div className="mt-4 flex flex-wrap gap-2">{examples.map((example, index) => <button key={example} onClick={() => setText(example)} className="rounded-full border border-slate-200 px-3 py-1.5 text-left text-xs text-slate-500 transition hover:border-indigo-200 hover:text-indigo-700">Example {index + 1}</button>)}</div><button onClick={analyze} disabled={loading} className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-60">{loading ? <Loader2 size={17} className="animate-spin" /> : <Sparkles size={17} />}{loading ? 'Reading patterns…' : 'Analyze post'}</button>{error && <div className="mt-4 flex items-start gap-2 rounded-xl bg-rose-50 p-3 text-sm leading-5 text-rose-700"><AlertTriangle size={17} className="mt-0.5 shrink-0" />{error}</div>}</section><section aria-live="polite" className="min-h-[480px]">{loading ? <div className="h-full rounded-3xl border border-slate-200 bg-white p-7"><div className="skeleton h-5 w-32" /><div className="mt-6 skeleton h-12 w-64" /><div className="mt-8 skeleton h-3 w-full" /></div> : result ? <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"><div className="flex items-start justify-between gap-4"><div className="flex gap-3">{isFalse ? <AlertTriangle className="mt-1 text-amber-500" /> : <CheckCircle2 className="mt-1 text-emerald-500" />}<div><p className="eyebrow">AI probability signal</p><h2 className="mt-2 text-2xl font-semibold">{result.display_label}</h2></div></div><button onClick={copyResult} className="rounded-lg border border-slate-200 p-2 text-slate-500 hover:text-indigo-600" aria-label="Copy result">{copied ? <CheckCircle2 size={17} /> : <Copy size={17} />}</button></div><div className="mt-8 flex items-end justify-between"><div><p className="text-xs font-medium uppercase tracking-widest text-slate-400">Model confidence</p><p className="mt-1 text-5xl font-semibold tracking-tight text-indigo-600">{confidence}%</p></div><span className="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700">{result.confidence_category.replace('_', ' ')}</span></div><div className="mt-5 h-3 overflow-hidden rounded-full bg-slate-100"><motion.div initial={{ width: 0 }} animate={{ width: `${confidence}%` }} transition={{ duration: .8 }} className={`h-full rounded-full ${isFalse ? 'bg-amber-400' : 'bg-emerald-500'}`} /></div>{(result.low_confidence || result.prediction === 'unverified') && <p className="mt-3 text-xs leading-5 text-amber-700">{result.warning}</p>}<div className="mt-8 grid gap-5 sm:grid-cols-2"><div><p className="eyebrow">Detected features</p><div className="mt-3 flex flex-wrap gap-2">{result.detected_features.length ? result.detected_features.map(term => <span key={term} className="tag">{term}</span>) : <span className="text-sm text-slate-400">No strong terms</span>}</div></div><div><p className="eyebrow">Class probabilities</p><div className="mt-3 space-y-1 text-sm text-slate-600">{Object.entries(result.class_probabilities).map(([label, value]) => <div key={label} className="flex justify-between"><span>{label}</span><strong>{Math.round(value * 100)}%</strong></div>)}</div></div></div><div className="mt-7 rounded-2xl bg-slate-50 p-4"><p className="eyebrow">Explanation</p><p className="mt-2 text-sm leading-6 text-slate-600">{result.explanation}</p></div><div className="mt-5 flex items-center justify-between gap-4 border-t border-slate-100 pt-4 text-xs text-slate-400"><span>{result.model_name} · {result.model_version}</span><button onClick={() => { setResult(null); setText('') }} className="flex items-center gap-1.5 font-semibold text-indigo-600 hover:text-indigo-800"><RotateCcw size={14} /> Analyze another</button></div><p className="mt-4 text-xs leading-5 text-slate-400">{result.warning} {result.disclaimer}</p></motion.div> : <div className="flex h-full min-h-[480px] flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 px-8 text-center"><Clipboard className="text-slate-300" size={32} /><h2 className="mt-4 font-semibold text-slate-600">Your result will appear here</h2><p className="mt-2 max-w-xs text-sm leading-6 text-slate-400">Submit a post to see the model signal, confidence, and explainability details.</p></div>}</section></div><p className="mt-8 text-center text-xs text-slate-400">SignalCheck is a reading aid. It does not browse sources or verify facts.</p></main>
+
+  return (
+    <main className="mx-auto max-w-7xl px-5 pb-24 pt-14 sm:px-8">
+      <div className="mb-10 max-w-2xl">
+        <p className="eyebrow">Analysis workspace</p>
+        <h1 className="mt-3 text-4xl font-semibold tracking-[-.04em] sm:text-5xl">What signal is this post sending?</h1>
+        <p className="mt-4 text-base leading-7 text-slate-500">Paste a post below. SignalCheck looks for learned language patterns—not whether a claim is definitively true.</p>
+      </div>
+      <div className="grid gap-8 lg:grid-cols-[.9fr_1.1fr]">
+        <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex items-center justify-between"><label htmlFor="post" className="text-sm font-semibold">Social media post</label><span className="text-xs text-slate-400">{text.length}/5000</span></div>
+          <textarea id="post" value={text} onChange={event => setText(event.target.value)} rows={11} maxLength={5000} placeholder="Paste the post you want to examine..." className="mt-4 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm leading-7 outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100" />
+          <p className="mt-3 text-xs leading-5 text-slate-400">Privacy notice: your submitted text is stored in local SQLite history for this installation. It is not sent to external APIs.</p>
+          <div className="mt-4 flex flex-wrap gap-2">{examples.map((example, index) => <button key={example} onClick={() => setText(example)} className="rounded-full border border-slate-200 px-3 py-1.5 text-left text-xs text-slate-500 transition hover:border-indigo-200 hover:text-indigo-700">Example {index + 1}</button>)}</div>
+          <button onClick={analyze} disabled={loading} className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-60">{loading ? <Loader2 size={17} className="animate-spin" /> : <Sparkles size={17} />}{loading ? 'Reading patterns…' : 'Analyze post'}</button>
+          {error && <div role="alert" className="mt-4 flex items-start gap-2 rounded-xl bg-rose-50 p-3 text-sm leading-5 text-rose-700"><AlertTriangle size={17} className="mt-0.5 shrink-0" />{error}</div>}
+        </section>
+        <section aria-live="polite" className="min-h-[480px]">
+          {loading ? <div className="h-full rounded-3xl border border-slate-200 bg-white p-7"><div className="skeleton h-5 w-32" /><div className="mt-6 skeleton h-12 w-64" /><div className="mt-8 skeleton h-3 w-full" /></div> : result ? <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="flex items-start justify-between gap-4"><div className="flex gap-3">{isFalse ? <AlertTriangle className="mt-1 text-amber-500" /> : <CheckCircle2 className="mt-1 text-emerald-500" />}<div><p className="eyebrow">AI probability signal</p><h2 className="mt-2 text-2xl font-semibold">{result.display_label}</h2></div></div><button onClick={copyResult} className="rounded-lg border border-slate-200 p-2 text-slate-500 hover:text-indigo-600" aria-label="Copy result">{copied ? <CheckCircle2 size={17} /> : <Copy size={17} />}</button></div>
+            <div className="mt-8 flex items-end justify-between"><div><p className="text-xs font-medium uppercase tracking-widest text-slate-400">Model confidence</p><p className="mt-1 text-5xl font-semibold tracking-tight text-indigo-600">{confidence}%</p></div><span className="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700">{result.confidence_category.replace('_', ' ')}</span></div>
+            <div className="mt-5 h-3 overflow-hidden rounded-full bg-slate-100"><motion.div initial={{ width: 0 }} animate={{ width: `${confidence}%` }} transition={{ duration: .8 }} className={`h-full rounded-full ${isFalse ? 'bg-amber-400' : 'bg-emerald-500'}`} /></div>
+            {(result.low_confidence || result.prediction === 'unverified') && <p className="mt-3 text-xs leading-5 text-amber-700">{result.warning}</p>}
+            <div className="mt-8 grid gap-5 sm:grid-cols-2"><div><p className="eyebrow">Detected features</p><div className="mt-3 flex flex-wrap gap-2">{result.detected_features.length ? result.detected_features.map(term => <span key={term} className="tag">{term}</span>) : <span className="text-sm text-slate-400">No strong terms</span>}</div></div><div><p className="eyebrow">Class probabilities</p><div className="mt-3 space-y-1 text-sm text-slate-600">{Object.entries(result.class_probabilities).map(([label, value]) => <div key={label} className="flex justify-between"><span>{label}</span><strong>{Math.round(value * 100)}%</strong></div>)}</div></div></div>
+            <div className="mt-7 rounded-2xl bg-slate-50 p-4"><p className="eyebrow">Explanation</p><p className="mt-2 text-sm leading-6 text-slate-600">{result.explanation}</p></div>
+            <div className="mt-5 flex items-center justify-between gap-4 border-t border-slate-100 pt-4 text-xs text-slate-400"><span>{result.model_name} · {result.model_version}</span><button onClick={() => { setResult(null); setText('') }} className="flex items-center gap-1.5 font-semibold text-indigo-600 hover:text-indigo-800"><RotateCcw size={14} /> Analyze another</button></div><p className="mt-4 text-xs leading-5 text-slate-400">{result.warning} {result.disclaimer}</p>
+          </motion.div> : <div className="flex h-full min-h-[480px] flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 px-8 text-center"><Clipboard className="text-slate-300" size={32} /><h2 className="mt-4 font-semibold text-slate-600">Your result will appear here</h2><p className="mt-2 max-w-xs text-sm leading-6 text-slate-400">Submit a post to see the model signal, confidence, and explainability details.</p></div>}
+        </section>
+      </div>
+      <p className="mt-8 text-center text-xs leading-5 text-slate-400">SignalCheck is a reading aid. It does not browse sources or verify facts.</p>
+    </main>
+  )
 }

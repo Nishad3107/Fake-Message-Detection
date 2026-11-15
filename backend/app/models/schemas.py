@@ -9,7 +9,7 @@ from app.core.config import get_settings
 
 
 class PredictionRequest(BaseModel):
-    text: str = Field(..., description="Social media post to analyze")
+    text: str = Field(..., strict=True, description="Social media post to analyze")
 
     @field_validator("text")
     @classmethod
@@ -68,6 +68,18 @@ class HealthResponse(BaseModel):
 
 class BatchPredictionRequest(BaseModel):
     posts: list[PredictionRequest] = Field(..., min_length=1, max_length=50)
+
+    @field_validator("posts")
+    @classmethod
+    def batch_size_is_configured(
+        cls, value: list[PredictionRequest]
+    ) -> list[PredictionRequest]:
+        settings = get_settings()
+        if len(value) > settings.max_batch_size:
+            raise ValueError(
+                f"Batch must not contain more than {settings.max_batch_size} posts"
+            )
+        return value
 
 
 class BatchPredictionResponse(BaseModel):

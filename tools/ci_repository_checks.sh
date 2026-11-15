@@ -15,7 +15,8 @@ if printf '%s\n' "$tracked_files" | grep -E '(^|/)backend/data/raw/pheme/|(^|/)b
   fail "tracked dataset, model, database, or experiment artifact detected"
 fi
 
-if git grep -n -I -E '/Users/|/home/|[A-Za-z]:\\\\Users\\\\' -- . >/dev/null; then
+if git grep -n -I -E '/Users/|/home/|[A-Za-z]:\\\\Users\\\\' -- . \
+  ':(exclude)tools/ci_repository_checks.sh' >/dev/null; then
   fail "user-specific absolute path detected"
 fi
 if git grep -n -I -E 'sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}' -- . >/dev/null; then

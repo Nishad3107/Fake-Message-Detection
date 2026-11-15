@@ -29,6 +29,16 @@ describe('academic frontend', () => {
     expect(fetchMock).not.toHaveBeenCalled()
   })
 
+  it('renders privacy notice and treats script-like input as text', () => {
+    window.location.hash = '#analyze'
+    render(<App />)
+    const input = '<script>alert("xss")</script>'
+    fireEvent.change(screen.getByLabelText(/Social media post/i), { target: { value: input } })
+    expect(screen.getByDisplayValue(input)).toBeInTheDocument()
+    expect(screen.getByText(/stored in local SQLite history/i)).toBeInTheDocument()
+    expect(document.querySelector('script:not([src])')).toBeNull()
+  })
+
   it('renders a real prediction response and uncertainty warning', async () => {
     window.location.hash = '#analyze'
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => prediction }))

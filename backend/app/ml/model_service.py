@@ -154,7 +154,6 @@ class FrozenModelService:
             warning += " High model confidence is not evidence of factual certainty."
         if prediction == "unverified":
             warning += " The source label is unverified; seek independent evidence."
-        config = self._config()
         return {
             "text": text,
             "cleaned_text": cleaned,
@@ -179,13 +178,8 @@ class FrozenModelService:
             "low_confidence": category == "low_confidence",
             "model_name": self.model_name,
             "model_version": str(artifact["model_version"]),
-            "training_dataset_reference": artifact.get(
-                "training_dataset_reference", "PHEME"
-            ),
-            "training_split_reference": config.get(
-                "split_manifest_reference",
-                "backend/data/splits/pheme_split_manifest.json",
-            ),
+            "training_dataset_reference": "PHEME train + validation splits",
+            "training_split_reference": "Event-level PHEME train/validation/test split",
             "model_limitations": limitations,
             "warning": warning,
             "timestamp": datetime.now(UTC),
@@ -222,9 +216,7 @@ class FrozenModelService:
             "algorithm": "TF-IDF word n-grams + Multinomial Naive Bayes",
             "dataset": "PHEME Rumour Detection and Veracity Classification",
             "dataset_reference": (
-                self.artifact.get("training_dataset_reference", "PHEME")
-                if self.artifact
-                else "PHEME"
+                "PHEME train + validation splits" if self.artifact else "PHEME"
             ),
             "labels": LABELS,
             "number_of_classes": len(LABELS),

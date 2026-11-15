@@ -24,3 +24,21 @@ def test_sqlite_history_repository(tmp_path: Path) -> None:
     assert saved["id"]
     assert items[0]["text"] == result["text"]
     assert summary["total_analyses"] == 1
+
+
+def test_history_treats_sql_like_text_as_data(tmp_path: Path) -> None:
+    settings = Settings(database_path=tmp_path / "history.db")
+    init_db(settings)
+    text = "'); DROP TABLE analyses; -- is only message content."
+    result = {
+        "text": text,
+        "classification": "unverified",
+        "confidence": 0.5,
+        "detected_keywords": [],
+        "explanation": "A test explanation.",
+        "model_name": "test",
+        "model_version": "test",
+        "timestamp": datetime.now(UTC),
+    }
+    save_analysis(settings, result)
+    assert list_analyses(settings)[0]["text"] == text

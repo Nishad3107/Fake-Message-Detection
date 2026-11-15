@@ -59,11 +59,19 @@ trains or downloads a model. See `docs/docker-and-end-to-end-verification.md`.
 {"text":"Paste a social media post with at least ten characters."}
 ```
 
-The response contains `classification` (`misinformation` or `likely_true`), a 0–1 `confidence`, detected heuristic keywords, a short model explanation, and a disclaimer. The model does not browse, retrieve sources, or establish truth.
+The response contains the original PHEME `classification` (`true`, `false`, or
+`unverified`), class probabilities, a confidence category, detected feature
+associations, a short model explanation, and a disclaimer. These are
+probabilistic language-pattern outputs, not factual verification. The model
+does not browse or retrieve sources.
 
 `POST /api/v1/predict/batch` accepts `{"posts":[{"text":"..."}]}` for up to 50 posts. Every successful prediction is saved to local history.
 
-Requests must contain 10–5000 non-whitespace characters. Invalid input returns HTTP 422. If model artifacts cannot be trained or loaded, prediction returns HTTP 503 with a clear error message.
+Requests must contain 10–5000 non-whitespace characters. Batch requests are
+limited to 50 posts and request bodies to 1 MB by default. Invalid input returns
+HTTP 422; oversized bodies return HTTP 413. If model artifacts cannot be
+loaded, prediction returns a sanitized HTTP 503 error. Successful submissions
+are stored in local SQLite history; see `docs/privacy-and-data-handling.md`.
 
 ## Training
 
@@ -141,6 +149,15 @@ Run `make analyze-dataset` to analyze prepared PHEME data when `backend/data/pro
 ## Persistence
 
 SQLite history is stored at `backend/data/history.db` for local runs. Docker stores it in the `history-data` named volume. The database layer is isolated in `backend/app/db/database.py`, so a PostgreSQL repository can be introduced later without changing the API contract.
+
+## Privacy and security
+
+Submitted text is stored locally in SQLite after a successful prediction. The
+analyzer shows this notice, application logs omit raw text, and no external
+inference API or API key is used. History has no automatic retention job and
+should be treated as sensitive local data. Configure explicit production CORS
+origins and keep `DEBUG=false`. See `docs/privacy-and-data-handling.md` and
+`docs/security-audit.md`.
 
 ## Development commands
 
