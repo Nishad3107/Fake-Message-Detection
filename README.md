@@ -87,6 +87,24 @@ make create-splits
 
 The preparation script creates `backend/data/processed/pheme_veracity.csv` with `text`, `label`, `event`, `thread_id`, and `source_tweet_id` columns. It preserves the raw files, excludes non-rumor branches from the veracity task, and does not train a model. See `docs/dataset-card.md` and `docs/exploratory-data-analysis.md` for the actual counts, label policy, bias risks, and split recommendation.
 
+## Reproducible end-to-end workflow
+
+After placing the manually obtained PHEME event tree under
+`backend/data/raw/pheme/`, run:
+
+```bash
+make reproduce-experiment
+make verify-experiment
+```
+
+The runner executes validation, preparation, EDA, event-level splitting,
+preprocessing, baseline comparison, grouped tuning, final evaluation, and
+error analysis in order. It stops on the first failure and records the complete
+run in `backend/data/reports/experiment_summary.json`. It never accepts the
+synthetic sample dataset for the academic workflow. See
+`docs/reproducibility-guide.md` for fresh-clone setup, Docker, generated-file
+policy, and limitations.
+
 ## Baseline model comparison
 
 Run `make train-baselines` after `make prepare-splits`. The experiment fits one TF-IDF vectorizer on training text only, compares a majority baseline, Multinomial Naive Bayes, class-balanced Logistic Regression, and LinearSVC on validation data, and keeps the test split unevaluated for model selection. Results are written to `backend/data/reports/model_comparison/`; model artifacts and the vectorizer are written to the ignored `backend/models/baselines/` directory. See `docs/baseline-model-comparison.md` for the configuration, validation results, and confidence semantics.
@@ -127,6 +145,15 @@ make format     # Black
 make lint       # Ruff
 make docker-up
 make docker-down
+```
+
+Additional workflow checks:
+
+```bash
+make validate-dataset
+make reproduce-experiment
+make verify-experiment
+make check-environment
 ```
 
 The backend uses the frozen PHEME artifact in `backend/models/final/` when it

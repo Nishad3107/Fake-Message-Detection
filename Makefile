@@ -1,10 +1,10 @@
-.PHONY: install backend frontend test train train-baselines tune-models evaluate-final analyze-errors validate-pheme prepare-dataset analyze-dataset create-splits prepare-splits format lint docker-up docker-down
+.PHONY: install backend frontend test train train-baselines tune-models evaluate-final analyze-errors validate-pheme validate-dataset prepare-dataset analyze-dataset create-splits prepare-splits reproduce-experiment verify-experiment check-environment format lint docker-up docker-down
 
 PYTHON := $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 
 install:
 	@test -x .venv/bin/python || python3 -m venv .venv
-	.venv/bin/python -m pip install -r backend/requirements.txt
+	$(PYTHON) -m pip install -r backend/requirements.txt
 	cd frontend && npm install
 backend:
 	PYTHONPATH=backend $(PYTHON) -m uvicorn app.main:app --reload --reload-dir backend --host 127.0.0.1 --port 8000
@@ -24,6 +24,7 @@ analyze-errors:
 	PYTHONPATH=backend $(PYTHON) -m app.ml.error_analysis
 validate-pheme:
 	PYTHONPATH=backend $(PYTHON) -m app.ml.validate_pheme --raw-dir backend/data/raw/pheme --report backend/data/reports/pheme_validation.json
+validate-dataset: validate-pheme
 prepare-dataset:
 	PYTHONPATH=backend $(PYTHON) -m app.ml.prepare_dataset --raw-dir backend/data/raw/pheme --output backend/data/processed/pheme_veracity.csv --report backend/data/reports/pheme_quality.json
 analyze-dataset:
@@ -32,11 +33,18 @@ create-splits:
 	PYTHONPATH=backend $(PYTHON) -m app.ml.create_splits
 prepare-splits:
 	PYTHONPATH=backend $(PYTHON) -m app.ml.prepare_splits
+reproduce-experiment:
+	PYTHONPATH=backend $(PYTHON) -m app.ml.run_experiment
+verify-experiment:
+	PYTHONPATH=backend $(PYTHON) -m app.ml.validate_experiment
+check-environment:
+	PYTHONPATH=backend $(PYTHON) -m app.ml.check_environment
 format:
 	$(PYTHON) -m black backend/app backend/tests
 lint:
 	$(PYTHON) -m ruff check backend/app backend/tests
 docker-up:
+	@test -f .env || cp .env.example .env
 	docker compose up --build
 docker-down:
 	docker compose down
