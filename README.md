@@ -127,13 +127,16 @@ split without training:
 ```bash
 make prepare-indian-dataset
 make create-indian-splits
+make audit-indian-content
 ```
 
 This creates ignored local files under `backend/data/processed/indian/` and
 `backend/data/splits/indian/`. The preparation uses `CONTENT`, preserves
 `TITLE` and URL/domain metadata, removes repeated normalized contents, and
-records a domain-grouped split. Training remains blocked until license terms
-and fake-article justification separation are approved. See
+records a domain-grouped split. The content audit screens for annotation
+markers and near-duplicate contamination. Training remains blocked until
+license terms and fake-article justification separation are approved. See
+`docs/indian-content-leakage-policy.md` and
 `docs/indian-data-decision-record.md`.
 
 ## Reproducible end-to-end workflow

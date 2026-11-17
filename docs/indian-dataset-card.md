@@ -126,8 +126,16 @@ deduplicated local file contains 67,177 rows after removing 1,577 repeated
 normalized contents; no conflicting-label duplicate groups were observed. A
 deterministic domain-grouped split manifest was generated with 48,545 training,
 9,892 validation, and 8,740 test rows. These files are ignored and local only.
-Near-duplicate detection was not performed, and fake-row justifications still
-must be separated before training.
+The content audit found 13,815 records with fact-check markers, 12,253 with
+debunking language, 21,535 with label-related words, and 32,924 records with
+at least one structural leakage flag. These are screening signals, not proof
+that every flagged segment is an annotation. The MinHash/LSH near-duplicate
+screen found 283 near-duplicate pairs affecting 551 records, including 12
+cross-domain and 12 cross-split pairs; no cross-label pairs were found. The
+current domain split is therefore unsafe for final evaluation until the pairs
+are reviewed and the split policy is regenerated if required. Fake-row
+justifications and the article/annotation boundary still require manual review
+before training.
 
 ## Ethical and legal considerations
 

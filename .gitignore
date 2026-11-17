@@ -17,8 +17,10 @@ backend/data/raw/indian/hinfakenews/*.xlsx
 backend/data/raw/indian/hinfakenews/source_metadata.json
 backend/data/processed/*.csv
 backend/data/processed/indian/*.csv
+backend/data/processed/indian/candidates/*.csv
 backend/data/reports/*.json
 backend/data/reports/indian/*.json
+backend/data/reports/indian/*.csv
 backend/data/reports/eda/
 backend/data/splits/*.json
 backend/data/splits/indian/*.json
