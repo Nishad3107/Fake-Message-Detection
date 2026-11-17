@@ -1,4 +1,4 @@
-.PHONY: install backend frontend test test-offline-retrieval build train train-baselines tune-models evaluate-final analyze-errors validate-pheme validate-dataset prepare-dataset analyze-dataset create-splits prepare-splits audit-indian-dataset prepare-indian-dataset create-indian-splits audit-indian-content audit-offline-corpus reproduce-experiment reproduce-experiment-safe verify-experiment check-environment format lint repo-checks docker-up docker-down
+.PHONY: install backend frontend test test-offline-retrieval build train train-baselines tune-models evaluate-final analyze-errors validate-pheme validate-dataset prepare-dataset analyze-dataset create-splits prepare-splits audit-indian-dataset prepare-indian-dataset create-indian-splits audit-indian-content audit-offline-corpus prepare-verification-benchmark reproduce-experiment reproduce-experiment-safe verify-experiment check-environment format lint repo-checks docker-up docker-down
 
 PYTHON := $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 
@@ -48,6 +48,9 @@ test-offline-retrieval:
 audit-offline-corpus:
 	@test -n "$(CORPUS)" || (echo "Set CORPUS=/path/to/local/evidence.jsonl; no default corpus is used" && exit 1)
 	PYTHONPATH=backend $(PYTHON) -m app.verification_corpus --corpus "$(CORPUS)"
+prepare-verification-benchmark:
+	@test -n "$(BENCHMARK)" || (echo "Set BENCHMARK=fever or BENCHMARK=averitec" && exit 1)
+	PYTHONPATH=backend $(PYTHON) -m app.prepare_verification_benchmarks "$(BENCHMARK)"
 reproduce-experiment:
 	PYTHONPATH=backend $(PYTHON) -m app.ml.run_experiment
 reproduce-experiment-safe:

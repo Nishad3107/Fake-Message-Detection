@@ -206,6 +206,18 @@ The rule-based claim extraction baseline is documented in
 `docs/claim-extraction.md`; it is not connected to live retrieval or verdict
 generation.
 
+FEVER and AVeriTeC are separate future evidence-verification tracks. They are
+not downloaded automatically, merged with PHEME/HinFakeNews, or used for
+training. After manually supplying a licensed local release, run:
+
+```bash
+make prepare-verification-benchmark BENCHMARK=fever
+make prepare-verification-benchmark BENCHMARK=averitec
+```
+
+See `docs/verification-benchmark-download.md`; missing local files leave the
+adapter status as `incomplete`.
+
 ## Privacy and security
 
 Submitted text is stored locally in SQLite after a successful prediction. The
