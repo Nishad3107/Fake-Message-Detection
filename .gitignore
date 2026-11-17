@@ -32,5 +32,6 @@ backend/models/final/
 backend/data/reports/experiment_summary.json
 backend/data/reports/experiment_validation.json
 backend/data/reports/model_comparison/error_analysis/
+backend/data/reports/verification/
 backend/data/experiments/
 *.tsbuildinfo

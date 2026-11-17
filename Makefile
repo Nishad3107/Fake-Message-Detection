@@ -1,4 +1,4 @@
-.PHONY: install backend frontend test build train train-baselines tune-models evaluate-final analyze-errors validate-pheme validate-dataset prepare-dataset analyze-dataset create-splits prepare-splits audit-indian-dataset prepare-indian-dataset create-indian-splits audit-indian-content reproduce-experiment reproduce-experiment-safe verify-experiment check-environment format lint repo-checks docker-up docker-down
+.PHONY: install backend frontend test test-offline-retrieval build train train-baselines tune-models evaluate-final analyze-errors validate-pheme validate-dataset prepare-dataset analyze-dataset create-splits prepare-splits audit-indian-dataset prepare-indian-dataset create-indian-splits audit-indian-content audit-offline-corpus reproduce-experiment reproduce-experiment-safe verify-experiment check-environment format lint repo-checks docker-up docker-down
 
 PYTHON := $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 
@@ -43,6 +43,11 @@ create-indian-splits:
 	PYTHONPATH=backend $(PYTHON) -m app.ml.create_indian_splits
 audit-indian-content:
 	PYTHONPATH=backend $(PYTHON) -m app.ml.audit_indian_content
+test-offline-retrieval:
+	PYTHONPATH=backend $(PYTHON) -m pytest -q backend/tests/test_offline_retrieval.py
+audit-offline-corpus:
+	@test -n "$(CORPUS)" || (echo "Set CORPUS=/path/to/local/evidence.jsonl; no default corpus is used" && exit 1)
+	PYTHONPATH=backend $(PYTHON) -m app.verification_corpus --corpus "$(CORPUS)"
 reproduce-experiment:
 	PYTHONPATH=backend $(PYTHON) -m app.ml.run_experiment
 reproduce-experiment-safe:
