@@ -189,6 +189,16 @@ Run `make analyze-dataset` to analyze prepared PHEME data when `backend/data/pro
 
 SQLite history is stored at `backend/data/history.db` for local runs. Docker stores it in the `history-data` named volume. The database layer is isolated in `backend/app/db/database.py`, so a PostgreSQL repository can be introduced later without changing the API contract.
 
+## Future evidence verification
+
+The current application is a PHEME pattern classifier, not an evidence-based
+fact verifier. Future claim verification is specified as a separate layer with
+retrieval, citations, temporal context, abstention, and source provenance. See
+`docs/verification-task-definition.md`,
+`docs/evidence-verification-architecture.md`, and
+`docs/verification-api-contract.md`. No web retrieval, external search API, or
+new verification model is enabled by the current release.
+
 ## Privacy and security
 
 Submitted text is stored locally in SQLite after a successful prediction. The
