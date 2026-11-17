@@ -1,0 +1,63 @@
+policy_version: "0.1"
+last_policy_review_date: "2026-11-17"
+defaults:
+  live_retrieval_allowed: false
+  external_search_api_allowed: false
+  full_page_storage_allowed: false
+  excerpt_storage_allowed: true
+  unknown_domains_candidate_retrieval: false
+  unknown_domains_citation_allowed: false
+  require_url_title_publisher_excerpt_timestamp: true
+  maximum_evidence_age_days: null
+allowed_languages:
+  - hi
+  - en
+  - hinglish
+  - romanized_hi
+allowed_domains: []
+blocked_domains: []
+sources:
+  - name: Press Information Bureau India
+    domain: pib.gov.in
+    category: official_government
+    country_or_region: India
+    languages: [hi, en]
+    approval_status: pending_review
+    allowed_for_retrieval: false
+    allowed_for_citation: false
+    requires_manual_review: true
+    notes: Candidate only; provenance and policy approval must be confirmed.
+    last_policy_review_date: "2026-11-17"
+  - name: Election Commission of India
+    domain: eci.gov.in
+    category: official_government
+    country_or_region: India
+    languages: [hi, en]
+    approval_status: pending_review
+    allowed_for_retrieval: false
+    allowed_for_citation: false
+    requires_manual_review: true
+    notes: Candidate only; provenance and policy approval must be confirmed.
+    last_policy_review_date: "2026-11-17"
+  - name: Supreme Court of India
+    domain: sci.gov.in
+    category: court_or_legal_record
+    country_or_region: India
+    languages: [en]
+    approval_status: pending_review
+    allowed_for_retrieval: false
+    allowed_for_citation: false
+    requires_manual_review: true
+    notes: Candidate only; provenance and policy approval must be confirmed.
+    last_policy_review_date: "2026-11-17"
+  - name: IndiaAI dataset catalogue
+    domain: aikosh.indiaai.gov.in
+    category: official_institution
+    country_or_region: India
+    languages: [en]
+    approval_status: pending_review
+    allowed_for_retrieval: false
+    allowed_for_citation: false
+    requires_manual_review: true
+    notes: Candidate catalogue; not an evidence source by default.
+    last_policy_review_date: "2026-11-17"

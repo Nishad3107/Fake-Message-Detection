@@ -198,6 +198,10 @@ retrieval, citations, temporal context, abstention, and source provenance. See
 `docs/evidence-verification-architecture.md`, and
 `docs/verification-api-contract.md`. No web retrieval, external search API, or
 new verification model is enabled by the current release.
+The India-first source policy is stored in `config/verification_sources.yaml`,
+with all initial candidates pending manual review. See
+`docs/india-first-language-policy.md`, `docs/evidence-storage-policy.md`, and
+`docs/live-retrieval-policy.md` before enabling any future retrieval work.
 
 ## Privacy and security
 
