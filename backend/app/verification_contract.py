@@ -7,6 +7,8 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, model_validator
 
+from app.claim_schema import ExtractedClaim
+
 EvidenceStatus = Literal[
     "SUPPORTED",
     "REFUTED",
@@ -28,6 +30,14 @@ SourceCategory = Literal[
     "unknown_low_context",
 ]
 PatternLabel = Literal["true", "false", "unverified", "pattern_model_uncertain"]
+VerificationInputType = Literal[
+    "plain_text",
+    "social_media_text",
+    "article_text",
+    "url",
+    "image",
+    "video",
+]
 
 
 class Claim(BaseModel):
@@ -82,7 +92,14 @@ class EvidenceVerification(BaseModel):
 
 class VerificationResponse(BaseModel):
     claim: Claim
+    input_type: VerificationInputType = "plain_text"
+    extracted_claims: list[ExtractedClaim] = Field(default_factory=list)
     pattern_analysis: PatternAnalysis | None = None
     evidence_verification: EvidenceVerification
     temporal_context: TemporalContext
+    verification_readiness: Literal[
+        "ready", "needs_human_review", "verification_unavailable"
+    ] = "ready"
+    human_review_required: bool = False
+    unsupported_modality_status: str | None = None
     limitations: list[str] = Field(default_factory=list)

@@ -202,6 +202,9 @@ The India-first source policy is stored in `config/verification_sources.yaml`,
 with all initial candidates pending manual review. See
 `docs/india-first-language-policy.md`, `docs/evidence-storage-policy.md`, and
 `docs/live-retrieval-policy.md` before enabling any future retrieval work.
+The rule-based claim extraction baseline is documented in
+`docs/claim-extraction.md`; it is not connected to live retrieval or verdict
+generation.
 
 ## Privacy and security
 
