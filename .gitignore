@@ -35,13 +35,17 @@ backend/data/reports/model_comparison/error_analysis/
 backend/data/reports/verification/
 backend/data/raw/verification/*
 !backend/data/raw/verification/fever/
+backend/data/raw/verification/fever/*
 !backend/data/raw/verification/fever/.gitkeep
 !backend/data/raw/verification/averitec/
+backend/data/raw/verification/averitec/*
 !backend/data/raw/verification/averitec/.gitkeep
 backend/data/processed/verification/*
 !backend/data/processed/verification/fever/
+backend/data/processed/verification/fever/*
 !backend/data/processed/verification/fever/.gitkeep
 !backend/data/processed/verification/averitec/
+backend/data/processed/verification/averitec/*
 !backend/data/processed/verification/averitec/.gitkeep
 backend/data/experiments/
 *.tsbuildinfo

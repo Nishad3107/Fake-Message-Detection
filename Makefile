@@ -1,4 +1,4 @@
-.PHONY: install backend frontend test test-offline-retrieval build train train-baselines tune-models evaluate-final analyze-errors validate-pheme validate-dataset prepare-dataset analyze-dataset create-splits prepare-splits audit-indian-dataset prepare-indian-dataset create-indian-splits audit-indian-content audit-offline-corpus prepare-verification-benchmark reproduce-experiment reproduce-experiment-safe verify-experiment check-environment format lint repo-checks docker-up docker-down
+.PHONY: install backend frontend test test-offline-retrieval build train train-baselines tune-models evaluate-final analyze-errors validate-pheme validate-dataset prepare-dataset analyze-dataset create-splits prepare-splits audit-indian-dataset prepare-indian-dataset create-indian-splits audit-indian-content audit-offline-corpus prepare-verification-benchmark build-verification-corpus audit-verification-corpus verify-verification-readiness reproduce-experiment reproduce-experiment-safe verify-experiment check-environment format lint repo-checks docker-up docker-down
 
 PYTHON := $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 
@@ -51,6 +51,15 @@ audit-offline-corpus:
 prepare-verification-benchmark:
 	@test -n "$(BENCHMARK)" || (echo "Set BENCHMARK=fever or BENCHMARK=averitec" && exit 1)
 	PYTHONPATH=backend $(PYTHON) -m app.prepare_verification_benchmarks "$(BENCHMARK)"
+build-verification-corpus:
+	@test "$(BENCHMARK)" = "averitec" || (echo "Only BENCHMARK=averitec is currently supported" && exit 1)
+	@test "$(MODE)" = "train_evidence_corpus" || (echo "Set MODE=train_evidence_corpus; no other mode builds data" && exit 1)
+	PYTHONPATH=backend $(PYTHON) -m app.build_verification_corpus --benchmark "$(BENCHMARK)" --mode "$(MODE)"
+audit-verification-corpus:
+	@test "$(BENCHMARK)" = "averitec" || (echo "Only BENCHMARK=averitec is currently supported" && exit 1)
+	PYTHONPATH=backend $(PYTHON) -m app.verification_corpus_leakage
+verify-verification-readiness:
+	PYTHONPATH=backend $(PYTHON) -m app.verification_readiness
 reproduce-experiment:
 	PYTHONPATH=backend $(PYTHON) -m app.ml.run_experiment
 reproduce-experiment-safe:

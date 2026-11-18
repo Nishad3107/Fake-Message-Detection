@@ -213,10 +213,19 @@ training. After manually supplying a licensed local release, run:
 ```bash
 make prepare-verification-benchmark BENCHMARK=fever
 make prepare-verification-benchmark BENCHMARK=averitec
+make build-verification-corpus BENCHMARK=averitec MODE=train_evidence_corpus
+make audit-verification-corpus BENCHMARK=averitec
+make verify-verification-readiness
 ```
 
-See `docs/verification-benchmark-download.md`; missing local files leave the
-adapter status as `incomplete`.
+The AVeriTeC commands are offline-only. The train corpus contains only local
+training answers and is not an independent web-retrieval benchmark. The
+development split remains separate, and any overlap or verdict-like wording is
+reported for review. Research metrics and live retrieval remain blocked until
+an independent licensed knowledge store is supplied. See
+`docs/verification-benchmark-download.md` and
+`docs/averitec-evaluation-protocol.md`; missing local files leave the adapter
+status as `incomplete`.
 
 ## Privacy and security
 

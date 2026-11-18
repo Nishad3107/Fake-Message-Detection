@@ -28,6 +28,24 @@ Each command writes a separate preparation report under
 `backend/data/reports/verification/` and, only when local files validate,
 writes normalized JSONL under the corresponding processed directory.
 
+For the locally supplied AVeriTeC train/dev release, the adapter preserves the
+nested questions, answers, URLs, metadata, labels, justifications, and original
+split. One source row has an empty claim and is therefore explicitly excluded
+from normalized claims rather than being fabricated; this leaves the
+preparation status `partial`. Run the follow-up offline checks with:
+
+```bash
+make build-verification-corpus BENCHMARK=averitec MODE=train_evidence_corpus
+make audit-verification-corpus BENCHMARK=averitec
+make verify-verification-readiness
+```
+
+The train evidence corpus is a development artifact only. It must not be
+reported as independent retrieval performance. The current local audit marks
+it unsafe for development/research metrics when train/dev claims, URLs, or
+evidence content overlap. The unavailable AVeriTeC knowledge store and blind
+test remain required for defensible retrieval benchmarking.
+
 With no files present, the report remains `incomplete` and gives the required
 manual action. No counts or labels are fabricated.
 
