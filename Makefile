@@ -1,4 +1,4 @@
-.PHONY: install backend frontend test test-offline-retrieval build train train-baselines tune-models evaluate-final analyze-errors validate-pheme validate-dataset prepare-dataset analyze-dataset create-splits prepare-splits audit-indian-dataset prepare-indian-dataset create-indian-splits audit-indian-content audit-offline-corpus prepare-verification-benchmark build-verification-corpus audit-verification-corpus verify-verification-readiness verify-averitec-clean-benchmark reproduce-experiment reproduce-experiment-safe verify-experiment check-environment format lint repo-checks docker-up docker-down
+.PHONY: install backend frontend test test-offline-retrieval build train train-baselines tune-models evaluate-final analyze-errors validate-pheme validate-dataset prepare-dataset analyze-dataset create-splits prepare-splits audit-indian-dataset prepare-indian-dataset create-indian-splits audit-indian-content audit-offline-corpus prepare-verification-benchmark build-verification-corpus audit-verification-corpus verify-verification-readiness verify-averitec-clean-benchmark run-averitec-internal-retrieval reproduce-experiment reproduce-experiment-safe verify-experiment check-environment format lint repo-checks docker-up docker-down
 
 PYTHON := $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 
@@ -63,6 +63,8 @@ verify-verification-readiness:
 verify-averitec-clean-benchmark:
 	PYTHONPATH=backend $(PYTHON) -m app.create_averitec_clean_benchmark
 	PYTHONPATH=backend $(PYTHON) -m app.verification_corpus_leakage --clean
+run-averitec-internal-retrieval:
+	PYTHONPATH=backend $(PYTHON) -m app.run_averitec_internal_retrieval
 reproduce-experiment:
 	PYTHONPATH=backend $(PYTHON) -m app.ml.run_experiment
 reproduce-experiment-safe:
