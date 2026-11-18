@@ -23,6 +23,29 @@ Evidence publication dates must be available before making a temporal claim;
 otherwise temporal leakage cannot be assessed and research readiness remains
 blocked.
 
+## Derived internal benchmark
+
+The supplied official train/dev files are preserved byte-for-byte. Their
+observed cross-split overlaps are reported in
+`averitec_overlap_groups.json`; they are not silently edited. A separate
+derived benchmark is created from source-training records only:
+
+```bash
+make verify-averitec-clean-benchmark
+```
+
+The generator canonicalizes claims, URLs, evidence text, and evidence-document
+identity, then assigns complete overlap groups using seed `42`. It writes
+`source_train.jsonl` and `source_dev.jsonl` as derived copies, plus
+`internal_train.jsonl` and `internal_dev.jsonl`. The resulting benchmark is
+for internal development only and is explicitly **not** the official AVeriTeC
+evaluation split. It must not be used to claim official AVeriTeC scores.
+
+The clean checker fails if claim, URL, evidence-text, evidence-document, or
+development-gold-evidence hashes cross the internal split boundary. An
+independent knowledge store is still required for realistic retrieval
+evaluation, and the blind test remains untouched.
+
 ## Metrics
 
 Future retrieval experiments will report Recall@1, Recall@3, Recall@5, MRR,

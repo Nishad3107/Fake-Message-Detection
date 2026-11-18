@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 import re
 from datetime import UTC, datetime
@@ -15,6 +16,7 @@ from app.averitec_utils import (
     load_jsonl,
     normalized,
 )
+from app.verification_canonicalize import record_signatures
 
 ROOT = Path(__file__).resolve().parents[1]
 TRAIN = ROOT / "data/processed/verification/averitec/train.jsonl"
@@ -24,6 +26,8 @@ CORPUS = (
 )
 REPORT = ROOT / "data/reports/verification/averitec_corpus_leakage.json"
 PROCESSED = ROOT / "data/processed/verification/averitec"
+CLEAN_ROOT = ROOT / "data/processed/verification/averitec_clean"
+CLEAN_REPORT = ROOT / "data/reports/verification/averitec_clean_corpus_leakage.json"
 
 
 def _evidence_hashes(rows: list[dict[str, Any]]) -> set[str]:
@@ -111,5 +115,71 @@ def audit_corpus_leakage() -> dict[str, Any]:
 audit = audit_corpus_leakage
 
 
+def audit_clean_benchmark() -> dict[str, Any]:
+    train_path = CLEAN_ROOT / "internal_train.jsonl"
+    dev_path = CLEAN_ROOT / "internal_dev.jsonl"
+    report: dict[str, Any] = {
+        "generated_at": datetime.now(UTC).isoformat(),
+        "benchmark": "averitec",
+        "derived_benchmark": True,
+        "status": "incomplete",
+        "checks": {},
+        "offline_only": True,
+        "statement": "This validates a derived internal benchmark, not official AVeriTeC evaluation.",
+    }
+    if not train_path.is_file() or not dev_path.is_file():
+        report["manual_action"] = "Run the clean benchmark generator first."
+    else:
+        train = load_jsonl(train_path)
+        dev = load_jsonl(dev_path)
+        train_sigs = [record_signatures(row) for row in train]
+        dev_sigs = [record_signatures(row) for row in dev]
+        train_claims = {item["claim_hash"] for item in train_sigs if item["claim_hash"]}
+        dev_claims = {item["claim_hash"] for item in dev_sigs if item["claim_hash"]}
+        train_urls = {value for item in train_sigs for value in item["url_hashes"]}
+        dev_urls = {value for item in dev_sigs for value in item["url_hashes"]}
+        train_evidence = {
+            value for item in train_sigs for value in item["evidence_hashes"]
+        }
+        dev_evidence = {value for item in dev_sigs for value in item["evidence_hashes"]}
+        train_documents = {
+            value for item in train_sigs for value in item["evidence_document_hashes"]
+        }
+        dev_documents = {
+            value for item in dev_sigs for value in item["evidence_document_hashes"]
+        }
+        checks = {
+            "claim_hash_overlap": len(train_claims & dev_claims),
+            "canonical_url_overlap": len(train_urls & dev_urls),
+            "evidence_hash_overlap": len(train_evidence & dev_evidence),
+            "evidence_document_overlap": len(train_documents & dev_documents),
+            "gold_evidence_in_internal_train_corpus": len(
+                train_evidence & dev_evidence
+            ),
+            "internal_train_records": len(train),
+            "internal_dev_records": len(dev),
+        }
+        report["checks"] = checks
+        overlap_keys = (
+            "claim_hash_overlap",
+            "canonical_url_overlap",
+            "evidence_hash_overlap",
+            "evidence_document_overlap",
+            "gold_evidence_in_internal_train_corpus",
+        )
+        report["status"] = (
+            "safe" if not any(checks[key] for key in overlap_keys) else "unsafe"
+        )
+    CLEAN_REPORT.parent.mkdir(parents=True, exist_ok=True)
+    CLEAN_REPORT.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    return report
+
+
 if __name__ == "__main__":
-    print(json.dumps(audit_corpus_leakage(), indent=2, ensure_ascii=False))
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--clean", action="store_true")
+    args = parser.parse_args()
+    result = audit_clean_benchmark() if args.clean else audit_corpus_leakage()
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+    if args.clean and result["status"] != "safe":
+        raise SystemExit(1)

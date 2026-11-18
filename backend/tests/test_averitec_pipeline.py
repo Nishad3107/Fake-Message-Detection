@@ -131,3 +131,60 @@ def test_readiness_blocks_research_without_independent_store(tmp_path, monkeypat
     report = module.readiness()
     assert report["statuses"]["ready_for_research_metrics"] is False
     assert report["statuses"]["ready_for_live_retrieval"] is False
+
+
+def test_canonicalization_removes_tracking_and_is_deterministic():
+    from app.verification_canonicalize import (
+        canonical_text,
+        canonical_url,
+        record_signatures,
+    )
+
+    assert canonical_text("  Café\u00a0 CLAIM  ") == "café claim"
+    assert (
+        canonical_url("HTTPS://WWW.Example.com/path?utm_source=x&id=7#fragment")
+        == "https://example.com/path?id=7"
+    )
+    row = _record("r1", "Same claim", "Evidence")
+    assert record_signatures(row) == record_signatures(row)
+
+
+def test_clean_benchmark_preserves_source_and_has_no_cross_split_overlap(
+    tmp_path, monkeypatch
+):
+    import hashlib
+
+    import app.create_averitec_clean_benchmark as module
+    from app.verification_corpus_leakage import audit_clean_benchmark
+
+    source = tmp_path / "source"
+    source.mkdir()
+    train_rows = [
+        _record(f"train-{index}", f"claim {index}", f"evidence {index}")
+        for index in range(20)
+    ]
+    dev_rows = [_record("dev-1", "official dev claim", "official evidence")]
+    train_path = source / "train.jsonl"
+    dev_path = source / "dev.jsonl"
+    train_path.write_text(
+        "\n".join(json.dumps(row) for row in train_rows) + "\n", encoding="utf-8"
+    )
+    dev_path.write_text(json.dumps(dev_rows[0]) + "\n", encoding="utf-8")
+    before = hashlib.sha256(train_path.read_bytes()).hexdigest()
+    monkeypatch.setattr(module, "SOURCE_ROOT", source)
+    monkeypatch.setattr(module, "OUTPUT_ROOT", tmp_path / "clean")
+    monkeypatch.setattr(module, "REPORT", tmp_path / "clean-report.json")
+    result = module.create_clean_benchmark()
+    assert result["official_evaluation"] is False
+    assert result["internal_train_count"] + result["internal_dev_count"] == 20
+    assert hashlib.sha256(train_path.read_bytes()).hexdigest() == before
+
+    import app.verification_corpus_leakage as leakage
+
+    monkeypatch.setattr(leakage, "CLEAN_ROOT", tmp_path / "clean")
+    monkeypatch.setattr(leakage, "CLEAN_REPORT", tmp_path / "clean-leakage.json")
+    safety = audit_clean_benchmark()
+    assert safety["status"] == "safe"
+    assert all(
+        value == 0 for key, value in safety["checks"].items() if "records" not in key
+    )

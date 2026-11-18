@@ -216,6 +216,7 @@ make prepare-verification-benchmark BENCHMARK=averitec
 make build-verification-corpus BENCHMARK=averitec MODE=train_evidence_corpus
 make audit-verification-corpus BENCHMARK=averitec
 make verify-verification-readiness
+make verify-averitec-clean-benchmark
 ```
 
 The AVeriTeC commands are offline-only. The train corpus contains only local
